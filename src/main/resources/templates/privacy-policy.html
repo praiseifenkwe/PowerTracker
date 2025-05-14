@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy - PowerTracker</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script th:inline="javascript">
+      const csrfToken = /*[[${_csrf.token}]]*/ "";
+      const csrfHeader = /*[[${_csrf.headerName}]]*/ "";
+    </script>
+    <style>
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+      .bg-gradient-custom {
+        background: linear-gradient(135deg, #1a1c2d 0%, #121420 100%);
+      }
+      .card-glass {
+        background: rgba(30, 32, 47, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(79, 84, 121, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      }
+      .gradient-text {
+        background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        transition: all 0.3s ease;
+      }
+      .btn-primary:hover {
+        box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
+        transform: translateY(-1px);
+      }
+      .nav-item {
+        position: relative;
+      }
+      .nav-item::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -2px;
+        left: 0;
+        background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+        transition: width 0.3s ease;
+      }
+      .nav-item:hover::after,
+      .nav-item.active::after {
+        width: 100%;
+      }
+      .policy-section {
+        border-left: 3px solid transparent;
+        transition: all 0.3s ease;
+      }
+      .policy-section:hover {
+        border-left-color: #6366f1;
+      }
+      .scroll-top {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 10;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+      }
+      .scroll-top.visible {
+        opacity: 1;
+        visibility: visible;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-gradient-custom text-gray-200" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <div class="container mx-auto py-4 px-4">
+      <!-- Navigation -->
+      <nav class="relative z-10">
+        <div class="flex justify-between items-center py-4">
+          <div class="flex items-center">
+            <div class="text-2xl font-bold text-white">
+              <a href="/" class="gradient-text">PowerTracker</a>
+            </div>
+          </div>
+          <div class="hidden md:flex space-x-10">
+            <a href="/" class="nav-item text-gray-300 hover:text-white">Home</a>
+            <a href="/dashboard" class="nav-item text-gray-300 hover:text-white">Dashboard</a>
+            <a href="/about" class="nav-item text-gray-300 hover:text-white">About</a>
+            <a href="/contact" class="nav-item text-gray-300 hover:text-white">Contact</a>
+          </div>
+          <div>
+            <div sec:authorize="isAuthenticated()">
+              <span class="mr-2">Welcome, <span th:text="${#strings.capitalize(displayName)}"></span></span>
+              <form th:action="@{/logout}" method="post" class="inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" class="px-4 py-2 rounded-lg btn-primary">Logout</button>
+              </form>
+            </div>
+            <div sec:authorize="!isAuthenticated()">
+              <a href="/login" class="px-4 py-2 rounded-lg btn-primary mr-2">Login</a>
+              <a href="/signup" class="px-4 py-2 rounded-lg bg-transparent border border-indigo-500 hover:bg-indigo-500/20 transition-all">Sign Up</a>
+            </div>
+          </div>
+          <!-- Mobile menu button -->
+          <div class="md:hidden flex items-center">
+            <button class="mobile-menu-button">
+              <svg class="w-6 h-6 text-white" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <!-- Mobile menu -->
+        <div class="md:hidden mobile-menu hidden">
+          <div class="card-glass rounded-lg mt-2 py-2">
+            <a href="/" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">Home</a>
+            <a href="/dashboard" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">Dashboard</a>
+            <a href="/about" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">About</a>
+            <a href="/contact" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">Contact</a>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Header -->
+      <div class="py-12 mt-8 text-center">
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight mb-6 animate__animated animate__fadeInDown">
+          Privacy <span class="gradient-text">Policy</span>
+        </h1>
+        <p class="text-gray-300 text-lg max-w-3xl mx-auto mb-10 animate__animated animate__fadeIn animate__delay-1s">
+          Your privacy matters to us. This policy explains how we collect, use, and protect your personal information.
+        </p>
+        <div class="text-sm text-gray-400">Last Updated: May 6, 2025</div>
+      </div>
+
+      <!-- Table of Contents -->
+      <div class="max-w-4xl mx-auto my-8">
+        <div class="card-glass rounded-xl p-6 mb-10">
+          <h2 class="text-xl font-bold mb-4">Table of Contents</h2>
+          <ul class="space-y-2">
+            <li>
+              <a href="#information-collection" class="text-indigo-400 hover:text-indigo-300 flex items-center">
+                <span class="mr-2">01</span>
+                <span>Information We Collect</span>
+              </a>
+            </li>
+            <li>
+              <a href="#information-use" class="text-indigo-400 hover:text-indigo-300 flex items-center">
+                <span class="mr-2">02</span>
+                <span>How We Use Your Information</span>
+              </a>
+            </li>
+            <li>
+              <a href="#information-sharing" class="text-indigo-400 hover:text-indigo-300 flex items-center">
+                <span class="mr-2">03</span>
+                <span>Information Sharing and Disclosure</span>
+              </a>
+            </li>
+            <li>
+              <a href="#data-security" class="text-indigo-400 hover:text-indigo-300 flex items-center">
+                <span class="mr-2">04</span>
+                <span>Data Security</span>
+              </a>
+            </li>
+            <li>
+              <a href="#user-rights" class="text-indigo-400 hover:text-indigo-300 flex items-center">
+                <span class="mr-2">05</span>
+                <span>Your Rights and Choices</span>
+              </a>
+            </li>
+            <li>
+              <a href="#children" class="text-indigo-400 hover:text-indigo-300 flex items-center">
+                <span class="mr-2">06</span>
+                <span>Children's Privacy</span>
+              </a>
+            </li>
+            <li>
+              <a href="#changes" class="text-indigo-400 hover:text-indigo-300 flex items-center">
+                <span class="mr-2">07</span>
+                <span>Changes to This Privacy Policy</span>
+              </a>
+            </li>
+            <li>
+              <a href="#contact-us" class="text-indigo-400 hover:text-indigo-300 flex items-center">
+                <span class="mr-2">08</span>
+                <span>Contact Us</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Policy Content -->
+        <div class="space-y-12">
+          <!-- Section 1 -->
+          <div id="information-collection" class="card-glass rounded-xl p-8 policy-section">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+              <span class="text-indigo-400 mr-3">01</span>
+              <span>Information We Collect</span>
+            </h2>
+            <div class="space-y-4 text-gray-300">
+              <p>
+                PowerTracker collects several types of information from and about users of our website and services, including:
+              </p>
+              <div class="ml-6 space-y-3">
+                <div>
+                  <h3 class="text-white font-semibold">Personal Information</h3>
+                  <p class="text-gray-400">
+                    Name, email address, postal address, phone number, and other identifiers you provide when creating an account or contacting us.
+                  </p>
+                </div>
+                <div>
+                  <h3 class="text-white font-semibold">Usage Data</h3>
+                  <p class="text-gray-400">
+                    Your electrical appliance data, usage patterns, consumption metrics, and other information related to tracking your energy consumption.
+                  </p>
+                </div>
+                <div>
+                  <h3 class="text-white font-semibold">Device Information</h3>
+                  <p class="text-gray-400">
+                    Information about your device, browser, IP address, and how you interact with our website and services.
+                  </p>
+                </div>
+                <div>
+                  <h3 class="text-white font-semibold">Cookies and Tracking Technologies</h3>
+                  <p class="text-gray-400">
+                    We use cookies and similar technologies to track activity and improve your experience. For more details, please see our <a href="/cookie-policy" class="text-indigo-400 hover:underline">Cookie Policy</a>.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2 -->
+          <div id="information-use" class="card-glass rounded-xl p-8 policy-section">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+              <span class="text-indigo-400 mr-3">02</span>
+              <span>How We Use Your Information</span>
+            </h2>
+            <div class="space-y-4 text-gray-300">
+              <p>
+                We use the information we collect for various purposes, including:
+              </p>
+              <ul class="ml-6 space-y-2 list-disc list-inside text-gray-400">
+                <li>Providing, maintaining, and improving our services</li>
+                <li>Processing and completing your transactions</li>
+                <li>Sending you technical notices, updates, security alerts, and support messages</li>
+                <li>Responding to your comments, questions, and requests</li>
+                <li>Developing new products and services</li>
+                <li>Personalizing your experience</li>
+                <li>Monitoring and analyzing trends, usage, and activities</li>
+                <li>Detecting, investigating, and preventing fraudulent or unauthorized activities</li>
+                <li>Complying with legal obligations</li>
+              </ul>
+              <p>
+                We process your personal information for these purposes in reliance on our legitimate business interests, to fulfill our contractual obligations to you, and/or with your consent.
+              </p>
+            </div>
+          </div>
+
+          <!-- Section 3 -->
+          <div id="information-sharing" class="card-glass rounded-xl p-8 policy-section">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+              <span class="text-indigo-400 mr-3">03</span>
+              <span>Information Sharing and Disclosure</span>
+            </h2>
+            <div class="space-y-4 text-gray-300">
+              <p>
+                PowerTracker does not sell your personal information. We may share your information in the following circumstances:
+              </p>
+              <div class="ml-6 space-y-3">
+                <div>
+                  <h3 class="text-white font-semibold">Service Providers</h3>
+                  <p class="text-gray-400">
+                    We may share your information with third-party vendors, consultants, and other service providers who need access to this information to perform services on our behalf.
+                  </p>
+                </div>
+                <div>
+                  <h3 class="text-white font-semibold">Legal Compliance</h3>
+                  <p class="text-gray-400">
+                    We may disclose your information if required to do so by law or in response to valid requests by public authorities (e.g., a court or government agency).
+                  </p>
+                </div>
+                <div>
+                  <h3 class="text-white font-semibold">Business Transfers</h3>
+                  <p class="text-gray-400">
+                    If PowerTracker is involved in a merger, acquisition, or sale of all or a portion of its assets, your information may be transferred as part of that transaction.
+                  </p>
+                </div>
+                <div>
+                  <h3 class="text-white font-semibold">With Your Consent</h3>
+                  <p class="text-gray-400">
+                    We may share your information with third parties when we have your consent to do so.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 4 -->
+          <div id="data-security" class="card-glass rounded-xl p-8 policy-section">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+              <span class="text-indigo-400 mr-3">04</span>
+              <span>Data Security</span>
+            </h2>
+            <div class="space-y-4 text-gray-300">
+              <p>
+                We implement appropriate technical and organizational measures to protect the security of your personal information. However, please understand that no method of transmission over the Internet or method of electronic storage is 100% secure.
+              </p>
+              <p>
+                Our security measures include:
+              </p>
+              <ul class="ml-6 space-y-2 list-disc list-inside text-gray-400">
+                <li>Encryption of data in transit and at rest</li>
+                <li>Regular security assessments and penetration testing</li>
+                <li>Access controls and authentication mechanisms</li>
+                <li>Continuous monitoring for suspicious activities</li>
+                <li>Regular security training for our team</li>
+              </ul>
+              <p>
+                While we strive to use commercially acceptable means to protect your personal information, we cannot guarantee its absolute security.
+              </p>
+            </div>
+          </div>
+
+          <!-- Section 5 -->
+          <div id="user-rights" class="card-glass rounded-xl p-8 policy-section">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+              <span class="text-indigo-400 mr-3">05</span>
+              <span>Your Rights and Choices</span>
+            </h2>
+            <div class="space-y-4 text-gray-300">
+              <p>
+                Depending on your location, you may have certain rights regarding your personal information:
+              </p>
+              <div class="ml-6 space-y-3">
+                <div>
+                  <h3 class="text-white font-semibold">Access and Correction</h3>
+                  <p class="text-gray-400">
+                    You can access and update your personal information by logging into your account. If you need assistance, please contact us.
+                  </p>
+                </div>
+                <div>
+                  <h3 class="text-white font-semibold">Data Portability</h3>
+                  <p class="text-gray-400">
+                    You have the right to request a copy of your data in a structured, machine-readable format.
+                  </p>
+                </div>
+                <div>
+                  <h3 class="text-white font-semibold">Deletion</h3>
+                  <p class="text-gray-400">
+                    You can request that we delete your personal information, subject to certain exceptions provided by law.
+                  </p>
+                </div>
+                <div>
+                  <h3 class="text-white font-semibold">Objection and Restriction</h3>
+                  <p class="text-gray-400">
+                    You may have the right to object to or restrict certain processing of your personal information.
+                  </p>
+                </div>
+                <div>
+                  <h3 class="text-white font-semibold">Withdrawal of Consent</h3>
+                  <p class="text-gray-400">
+                    Where processing is based on your consent, you have the right to withdraw that consent at any time.
+                  </p>
+                </div>
+              </div>
+              <p>
+                To exercise these rights, please contact us using the information provided at the end of this policy.
+              </p>
+            </div>
+          </div>
+
+          <!-- Section 6 -->
+          <div id="children" class="card-glass rounded-xl p-8 policy-section">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+              <span class="text-indigo-400 mr-3">06</span>
+              <span>Children's Privacy</span>
+            </h2>
+            <div class="space-y-4 text-gray-300">
+              <p>
+                Our services are not intended for children under the age of 16. We do not knowingly collect personal information from children under 16. If you are a parent or guardian and believe that your child has provided us with personal information, please contact us.
+              </p>
+              <p>
+                If we become aware that we have collected personal information from children without verification of parental consent, we will take steps to remove that information from our servers.
+              </p>
+            </div>
+          </div>
+
+          <!-- Section 7 -->
+          <div id="changes" class="card-glass rounded-xl p-8 policy-section">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+              <span class="text-indigo-400 mr-3">07</span>
+              <span>Changes to This Privacy Policy</span>
+            </h2>
+            <div class="space-y-4 text-gray-300">
+              <p>
+                We may update our Privacy Policy from time to time. When we do, we will revise the "Last Updated" date at the top of this page and notify you through the app or by email of any material changes.
+              </p>
+              <p>
+                We encourage you to review this Privacy Policy periodically to stay informed about how we collect, use, and protect your information.
+              </p>
+              <p>
+                Your continued use of our services after any changes to this Privacy Policy constitutes your acceptance of the changes.
+              </p>
+            </div>
+          </div>
+
+          <!-- Section 8 -->
+          <div id="contact-us" class="card-glass rounded-xl p-8 policy-section">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+              <span class="text-indigo-400 mr-3">08</span>
+              <span>Contact Us</span>
+            </h2>
+            <div class="space-y-4 text-gray-300">
+              <p>
+                If you have any questions or concerns about this Privacy Policy or our data practices, please contact us:
+              </p>
+              <div class="ml-6 space-y-2 text-gray-400">
+                <p>
+                  <span class="text-white font-semibold">Email:</span> privacy@powertracker.com
+                </p>
+                <p>
+                  <span class="text-white font-semibold">Address:</span> 123 Energy Lane, Green City, CA 94103, United States
+                </p>
+                <p>
+                  <span class="text-white font-semibold">Phone:</span> +1 (800) 123-4567
+                </p>
+              </div>
+              <p>
+                We will respond to your request within 30 days.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scroll to top button -->
+      <button class="scroll-top bg-indigo-600 hover:bg-indigo-700 p-4 rounded-full shadow-lg transition-all" aria-label="Scroll to top">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
+      </button>
+
+      <!-- Footer -->
+      <footer class="py-10 mt-20 border-t border-gray-800">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+          <div>
+            <h3 class="text-xl font-bold mb-4 gradient-text">PowerTracker</h3>
+            <p class="text-gray-400">
+              Helping you manage and optimize your electricity usage for a greener planet and lower bills.
+            </p>
+          </div>
+          <div>
+            <h4 class="text-md font-semibold mb-4 text-white">Quick Links</h4>
+            <ul class="space-y-2">
+              <li><a href="/" class="text-gray-400 hover:text-indigo-400">Home</a></li>
+              <li><a href="/dashboard" class="text-gray-400 hover:text-indigo-400">Dashboard</a></li>
+              <li><a href="/about" class="text-gray-400 hover:text-indigo-400">About Us</a></li>
+              <li><a href="/contact" class="text-gray-400 hover:text-indigo-400">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-md font-semibold mb-4 text-white">Legal</h4>
+            <ul class="space-y-2">
+              <li><a href="/privacy-policy" class="text-indigo-400 hover:text-indigo-300">Privacy Policy</a></li>
+              <li><a href="/terms-of-service" class="text-gray-400 hover:text-indigo-400">Terms of Service</a></li>
+              <li><a href="/cookie-policy" class="text-gray-400 hover:text-indigo-400">Cookie Policy</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-md font-semibold mb-4 text-white">Connect With Us</h4>
+            <div class="flex space-x-4">
+              <a href="#" class="text-gray-400 hover:text-indigo-400 text-xl"><i class="fab fa-twitter"></i></a>
+              <a href="#" class="text-gray-400 hover:text-indigo-400 text-xl"><i class="fab fa-facebook"></i></a>
+              <a href="#" class="text-gray-400 hover:text-indigo-400 text-xl"><i class="fab fa-instagram"></i></a>
+              <a href="#" class="text-gray-400 hover:text-indigo-400 text-xl"><i class="fab fa-linkedin"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="mt-10 pt-6 border-t border-gray-800 text-center text-gray-500 text-sm">
+          &copy; 2025 PowerTracker. All rights reserved.
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      // Mobile menu toggle
+      document.querySelector('.mobile-menu-button').addEventListener('click', function() {
+        document.querySelector('.mobile-menu').classList.toggle('hidden');
+      });
+
+      // Scroll to top button
+      document.addEventListener('DOMContentLoaded', function() {
+        const scrollTopButton = document.querySelector('.scroll-top');
+        
+        window.addEventListener('scroll', function() {
+          if (window.pageYOffset > 200) {
+            scrollTopButton.classList.add('visible');
+          } else {
+            scrollTopButton.classList.remove('visible');
+          }
+        });
+        
+        scrollTopButton.addEventListener('click', function() {
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+        });
+      });
+
+      // Smooth scrolling for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          
+          const targetId = this.getAttribute('href');
+          const targetElement = document.querySelector(targetId);
+          
+          if (targetElement) {
+            window.scrollTo({
+              top: targetElement.offsetTop - 80,
+              behavior: 'smooth'
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

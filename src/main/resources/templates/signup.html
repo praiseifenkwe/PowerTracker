@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | PowerTracker</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1c2d 0%, #121420 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .card-glass {
+            background: rgba(30, 32, 47, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(79, 84, 121, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        .input-field {
+            background: rgba(30, 32, 47, 0.6);
+            border: 1px solid rgba(79, 84, 121, 0.3);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+            outline: none;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
+            transform: translateY(-1px);
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .bg-auth-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366f1' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background-color: #1a1c2d;
+        }
+        .form-container {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .form-floating-label {
+            position: absolute;
+            left: 1rem;
+            top: 0.75rem;
+            transition: all 0.2s ease;
+            pointer-events: none;
+            color: rgba(156, 163, 175, 1);
+            padding-left: 2rem;
+        }
+        .input-field:focus + .form-floating-label,
+        .input-field:not(:placeholder-shown) + .form-floating-label {
+            transform: translateY(-1.75rem) scale(0.85);
+            color: #6366f1;
+            padding-left: 0;
+        }
+        .eye-icon {
+            transition: all 0.3s ease;
+        }
+        .eye-icon:hover {
+            color: #6366f1;
+        }
+        .form-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+        }
+        .form-divider::before,
+        .form-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid rgba(79, 84, 121, 0.3);
+        }
+        .form-divider::before {
+            margin-right: 0.5em;
+        }
+        .form-divider::after {
+            margin-left: 0.5em;
+        }
+        .social-btn {
+            transition: all 0.3s ease;
+            background: rgba(30, 32, 47, 0.8);
+            border: 1px solid rgba(79, 84, 121, 0.3);
+        }
+        .social-btn:hover {
+            transform: translateY(-2px);
+            background: rgba(30, 32, 47, 1);
+        }
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .error-message {
+            font-size: 0.875rem;
+            color: #ef4444;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+        }
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+        .strength-weak {
+            width: 33.333%;
+            background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+        }
+        .strength-medium {
+            width: 66.666%;
+            background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+        }
+        .strength-strong {
+            width: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+        }
+        .feature-item {
+            transition: all 0.3s ease;
+        }
+        .feature-item:hover {
+            transform: translateY(-2px);
+        }
+        input[type="checkbox"] {
+            background-color: rgba(30, 32, 47, 0.8);
+            border-color: rgba(79, 84, 121, 0.3);
+        }
+        input[type="checkbox"]:checked {
+            background-color: #6366f1;
+        }
+        a {
+            transition: all 0.3s ease;
+        }
+        .mobile-menu {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 60px;
+            z-index: 50;
+            margin: 0 1rem;
+        }
+        .mobile-menu .card-glass {
+            background: rgba(30, 32, 47, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        @media (max-width: 640px) {
+            .card-glass {
+                padding: 1.5rem;
+            }
+            .form-container {
+                margin-top: 1rem;
+            }
+            .input-field {
+                padding-top: 0.625rem;
+                padding-bottom: 0.625rem;
+            }
+            .grid-cols-1.lg\:grid-cols-5 {
+                display: block;
+            }
+            .lg\:col-span-3,
+            .lg\:col-span-2 {
+                margin-bottom: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen bg-auth-pattern">
+    <nav class="py-6 px-6 sm:px-10 container mx-auto relative">
+        <div class="flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold gradient-text">PowerTracker</a>
+            <div class="hidden md:flex space-x-6">
+                <a href="/" class="text-gray-300 hover:text-white nav-link">Home</a>
+                <a href="/about" class="text-gray-300 hover:text-white nav-link">About</a>
+                <a href="/contact" class="text-gray-300 hover:text-white nav-link">Contact</a>
+            </div>
+            
+            <!-- Mobile menu button -->
+            <div class="md:hidden flex items-center">
+                <button class="mobile-menu-button">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div class="md:hidden mobile-menu hidden">
+            <div class="card-glass rounded-lg mt-2 py-2">
+                <a href="/" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">Home</a>
+                <a href="/about" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">About</a>
+                <a href="/contact" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">Contact</a>
+                <div class="border-t border-gray-700 my-2"></div>
+                <a href="/login" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex-grow flex items-center justify-center py-10 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl w-full space-y-8 form-container">
+            <div class="text-center">
+                <h2 class="text-3xl font-extrabold text-white mb-2">Create Your Account</h2>
+                <p class="text-gray-400">Start optimizing your energy usage today</p>
+                <div th:if="${param.error}" class="mt-4 p-3 bg-red-500/20 text-red-300 rounded-lg text-sm font-medium animate__animated animate__headShake">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span th:text="${param.error}">Error message</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                <!-- Form Section -->
+                <div class="lg:col-span-3">
+                    <div class="card-glass rounded-xl overflow-hidden">
+                        <div class="p-8">
+                            <form th:action="@{/signup}" method="post" th:object="${user}" class="space-y-6">
+                                <!-- Name Field -->
+                                <div class="relative">
+                                    <div class="flex items-center absolute inset-y-0 left-0 pl-3 pointer-events-none">
+                                        <i class="fas fa-user text-indigo-400"></i>
+                                    </div>
+                                    <input type="text" id="name" name="name" th:field="*{name}" 
+                                           class="input-field w-full px-10 py-3 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                           placeholder="Full Name" required>
+                                    <div th:if="${#fields.hasErrors('name')}" class="error-message">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                        <span th:errors="*{name}">Name error</span>
+                                    </div>
+                                </div>
+
+                                <!-- Email Field -->
+                                <div class="relative">
+                                    <div class="flex items-center absolute inset-y-0 left-0 pl-3 pointer-events-none">
+                                        <i class="fas fa-envelope text-indigo-400"></i>
+                                    </div>
+                                    <input type="email" id="email" name="email" th:field="*{email}" 
+                                           class="input-field w-full px-10 py-3 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                           placeholder="Email Address" required>
+                                    <div th:if="${#fields.hasErrors('email')}" class="error-message">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                        <span th:errors="*{email}">Email error</span>
+                                    </div>
+                                </div>
+
+                                <!-- Password Field -->
+                                <div class="relative">
+                                    <div class="flex items-center absolute inset-y-0 left-0 pl-3 pointer-events-none">
+                                        <i class="fas fa-lock text-indigo-400"></i>
+                                    </div>
+                                    <input type="password" id="password" name="password" th:field="*{password}" 
+                                           class="input-field w-full px-10 py-3 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                           placeholder="Password" required>
+                                    <button type="button" 
+                                            class="absolute inset-y-0 right-0 flex items-center pr-3 eye-icon toggle-password" 
+                                            aria-label="Toggle password visibility">
+                                        <i class="fas fa-eye text-indigo-400"></i>
+                                    </button>
+                                    <div th:if="${#fields.hasErrors('password')}" class="error-message">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                        <span th:errors="*{password}">Password error</span>
+                                    </div>
+                                    <div class="password-strength" id="passwordStrength"></div>
+                                </div>
+
+                                <!-- Confirm Password Field -->
+                                <div class="relative">
+                                    <div class="flex items-center absolute inset-y-0 left-0 pl-3 pointer-events-none">
+                                        <i class="fas fa-lock text-indigo-400"></i>
+                                    </div>
+                                    <input type="password" id="confirmPassword" name="confirmPassword" 
+                                           class="input-field w-full px-10 py-3 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                           placeholder="Confirm Password" required>
+                                    <div id="passwordMatch" class="hidden error-message">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                        <span>Passwords do not match</span>
+                                    </div>
+                                </div>
+
+                                <!-- Terms and Conditions -->
+                                <div class="flex items-start">
+                                    <div class="flex items-center h-5">
+                                        <input id="terms" name="terms" type="checkbox" required
+                                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-700 rounded bg-gray-800">
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label for="terms" class="font-medium text-gray-300">
+                                            I agree to the <a href="/terms-of-service" class="text-indigo-400 hover:text-indigo-300">Terms of Service</a> and <a href="/privacy-policy" class="text-indigo-400 hover:text-indigo-300">Privacy Policy</a>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div>
+                                    <button type="submit" id="submitButton"
+                                            class="btn-primary w-full flex justify-center py-3 px-4 rounded-lg text-white font-medium">
+                                        <span>Create Account</span>
+                                    </button>
+                                </div>
+                            </form>
+
+                            <!-- Social signup section removed -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Benefits Section -->
+                <div class="lg:col-span-2">
+                    <div class="card-glass rounded-xl p-6">
+                        <h3 class="text-xl font-bold mb-6 gradient-text">Why Join PowerTracker?</h3>
+                        <div class="space-y-5">
+                            <div class="feature-item flex items-start p-3 rounded-lg bg-indigo-900/20">
+                                <div class="flex-shrink-0 mr-3 mt-1">
+                                    <div class="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center">
+                                        <i class="fas fa-chart-line text-indigo-400"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-white">Track Energy Usage</h4>
+                                    <p class="text-gray-400 text-sm">Monitor your electricity consumption in real-time with detailed insights and analytics.</p>
+                                </div>
+                            </div>
+                            <div class="feature-item flex items-start p-3 rounded-lg bg-purple-900/20">
+                                <div class="flex-shrink-0 mr-3 mt-1">
+                                    <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+                                        <i class="fas fa-coins text-purple-400"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-white">Save Money</h4>
+                                    <p class="text-gray-400 text-sm">Reduce your electricity bills by identifying energy-inefficient appliances and usage patterns.</p>
+                                </div>
+                            </div>
+                            <div class="feature-item flex items-start p-3 rounded-lg bg-blue-900/20">
+                                <div class="flex-shrink-0 mr-3 mt-1">
+                                    <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                                        <i class="fas fa-leaf text-blue-400"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-white">Go Green</h4>
+                                    <p class="text-gray-400 text-sm">Lower your carbon footprint by optimizing your energy consumption and reducing waste.</p>
+                                </div>
+                            </div>
+                            <div class="feature-item flex items-start p-3 rounded-lg bg-green-900/20">
+                                <div class="flex-shrink-0 mr-3 mt-1">
+                                    <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                                        <i class="fas fa-lightbulb text-green-400"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-white">Smart Recommendations</h4>
+                                    <p class="text-gray-400 text-sm">Get personalized tips and suggestions to improve energy efficiency based on your usage.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-8 bg-indigo-900/10 p-4 rounded-lg border border-indigo-900/30">
+                            <div class="flex items-center">
+                                <i class="fas fa-shield-alt text-indigo-400 mr-3 text-lg"></i>
+                                <span class="text-white font-medium">Secure & Private</span>
+                            </div>
+                            <p class="text-gray-400 text-sm mt-2">Your data is encrypted and never shared with third parties. We prioritize your privacy and security.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-6">
+                <p class="text-gray-400">
+                    Already have an account?
+                    <a href="/login" class="font-medium text-indigo-400 hover:text-indigo-300">Sign in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-6 px-6 sm:px-10">
+        <div class="container mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="text-gray-400 text-sm mb-4 md:mb-0">
+                    &copy; 2025 PowerTracker. All rights reserved.
+                </div>
+                <div class="flex space-x-6">
+                    <a href="/privacy-policy" class="text-gray-400 hover:text-indigo-400 text-sm">Privacy Policy</a>
+                    <a href="/terms-of-service" class="text-gray-400 hover:text-indigo-400 text-sm">Terms of Service</a>
+                    <a href="/cookie-policy" class="text-gray-400 hover:text-indigo-400 text-sm">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const mobileMenuButton = document.querySelector('.mobile-menu-button');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+            
+            // Password toggle
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const toggleButton = document.querySelector('.toggle-password');
+            const passwordMatch = document.getElementById('passwordMatch');
+            const submitButton = document.getElementById('submitButton');
+            const passwordStrength = document.getElementById('passwordStrength');
+            
+            toggleButton.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                confirmPasswordInput.setAttribute('type', type);
+                
+                // Toggle the icon
+                if (type === 'password') {
+                    toggleButton.innerHTML = '<i class="fas fa-eye text-gray-500"></i>';
+                } else {
+                    toggleButton.innerHTML = '<i class="fas fa-eye-slash text-gray-500"></i>';
+                }
+            });
+            
+            // Check password match - only when user finishes typing
+            let typingTimer;  // Timer identifier
+            const doneTypingInterval = 800;  // Time in ms (800 ms = wait for 0.8 seconds)
+            
+            // Hide error message by default when the page loads
+            passwordMatch.classList.add('hidden');
+            
+            // On keyup, start the countdown
+            confirmPasswordInput.addEventListener('input', function() {
+                clearTimeout(typingTimer);
+                
+                // Always hide error while typing
+                passwordMatch.classList.add('hidden');
+                submitButton.disabled = false;
+                
+                // Only check for match if both fields have content
+                if (passwordInput.value && confirmPasswordInput.value) {
+                    typingTimer = setTimeout(function() {
+                        // User has finished typing, now check if passwords match
+                        if (passwordInput.value !== confirmPasswordInput.value) {
+                            passwordMatch.classList.remove('hidden');
+                            submitButton.disabled = true;
+                        } else {
+                            passwordMatch.classList.add('hidden');
+                            submitButton.disabled = false;
+                        }
+                    }, doneTypingInterval);
+                }
+            });
+            
+            // Also check when password field changes
+            passwordInput.addEventListener('input', function() {
+                if (confirmPasswordInput.value) {
+                    clearTimeout(typingTimer);
+                    // Always hide error while typing
+                    passwordMatch.classList.add('hidden');
+                    submitButton.disabled = false;
+                    
+                    typingTimer = setTimeout(function() {
+                        if (passwordInput.value !== confirmPasswordInput.value) {
+                            passwordMatch.classList.remove('hidden');
+                            submitButton.disabled = true;
+                        } else {
+                            passwordMatch.classList.add('hidden');
+                            submitButton.disabled = false;
+                        }
+                    }, doneTypingInterval);
+                }
+            });
+            
+            // Password strength meter
+            passwordInput.addEventListener('input', function() {
+                const password = passwordInput.value;
+                
+                // Remove any existing strength classes
+                passwordStrength.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
+                
+                if (password.length > 0) {
+                    // Simple password strength calculation
+                    const hasUpperCase = /[A-Z]/.test(password);
+                    const hasLowerCase = /[a-z]/.test(password);
+                    const hasNumbers = /\d/.test(password);
+                    const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+                    
+                    const strength = [hasUpperCase, hasLowerCase, hasNumbers, hasSpecialChars].filter(Boolean).length;
+                    
+                    if (password.length < 8 || strength < 2) {
+                        passwordStrength.classList.add('strength-weak');
+                    } else if (password.length >= 8 && strength >= 2 && strength < 4) {
+                        passwordStrength.classList.add('strength-medium');
+                    } else {
+                        passwordStrength.classList.add('strength-strong');
+                    }
+                }
+            });
+            
+            // Form submit animation
+            const form = document.querySelector('form');
+            
+            form.addEventListener('submit', function(e) {
+                // Check if passwords match before submission, but only if both fields have content
+                if (passwordInput.value && confirmPasswordInput.value && passwordInput.value !== confirmPasswordInput.value) {
+                    e.preventDefault();
+                    passwordMatch.classList.remove('hidden');
+                    return;
+                }
+                
+                submitButton.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Creating Account...';
+                submitButton.disabled = true;
+            });
+        });
+    </script>
+</body>
+</html>

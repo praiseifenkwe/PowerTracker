@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Electric Power Calculator - Contact Us</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script th:inline="javascript">
+      const csrfToken = /*[[${_csrf.token}]]*/ "";
+      const csrfHeader = /*[[${_csrf.headerName}]]*/ "";
+    </script>
+    <style>
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+      .bg-gradient-custom {
+        background: linear-gradient(135deg, #1a1c2d 0%, #121420 100%);
+      }
+      .card-glass {
+        background: rgba(30, 32, 47, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(79, 84, 121, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      }
+      .gradient-text {
+        background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        transition: all 0.3s ease;
+      }
+      .btn-primary:hover {
+        box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
+        transform: translateY(-1px);
+      }
+      .nav-item {
+        position: relative;
+      }
+      .nav-item::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -2px;
+        left: 0;
+        background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+        transition: width 0.3s ease;
+      }
+      .nav-item:hover::after,
+      .nav-item.active::after {
+        width: 100%;
+      }
+      .scroll-reveal {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 1s ease;
+      }
+      .scroll-reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .input-field {
+        background: rgba(30, 32, 47, 0.6);
+        border: 1px solid rgba(79, 84, 121, 0.3);
+        transition: all 0.3s ease;
+      }
+      .input-field:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+      }
+      .contact-card {
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+      }
+      .contact-card:hover {
+        border-left: 3px solid #6366f1;
+        transform: translateX(5px);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-gradient-custom text-gray-200" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <div class="container mx-auto py-4 px-4">
+      <!-- Navigation -->
+      <nav class="relative z-10">
+        <div class="flex justify-between items-center py-4">
+          <div class="flex items-center">
+            <div class="text-2xl font-bold text-white">
+              <span class="gradient-text">PowerTracker</span>
+            </div>
+          </div>
+          <div class="hidden md:flex space-x-10">
+            <a href="/" class="nav-item text-gray-300 hover:text-white">Home</a>
+            <a href="/dashboard" class="nav-item text-gray-300 hover:text-white">Dashboard</a>
+            <a href="/about" class="nav-item text-gray-300 hover:text-white">About</a>
+            <a href="/contact" class="nav-item active text-white">Contact</a>
+          </div>
+          <div class="hidden md:block">
+            <div sec:authorize="isAuthenticated()">
+              <span class="mr-2">Welcome, <span th:text="${#strings.capitalize(displayName)}"></span></span>
+              <form th:action="@{/logout}" method="post" class="inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" class="px-4 py-2 rounded-lg btn-primary">Logout</button>
+              </form>
+            </div>
+            <div sec:authorize="!isAuthenticated()">
+              <a href="/login" class="px-4 py-2 rounded-lg btn-primary mr-2">Login</a>
+              <a href="/signup" class="px-4 py-2 rounded-lg bg-transparent border border-indigo-500 hover:bg-indigo-500/20 transition-all">Sign Up</a>
+            </div>
+          </div>
+          <!-- Mobile menu button -->
+          <div class="md:hidden flex items-center">
+            <button class="mobile-menu-button">
+              <svg class="w-6 h-6 text-white" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <!-- Mobile menu -->
+        <div class="md:hidden mobile-menu hidden">
+          <div class="card-glass rounded-lg mt-2 py-2">
+            <a href="/" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">Home</a>
+            <a href="/dashboard" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">Dashboard</a>
+            <a href="/about" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">About</a>
+            <a href="/contact" class="block px-4 py-2 text-white bg-indigo-500/20">Contact</a>
+            <div sec:authorize="isAuthenticated()" class="border-t border-gray-700 my-2 px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>Welcome, <span th:text="${#strings.capitalize(displayName)}"></span></span>
+                <form th:action="@{/logout}" method="post" class="inline">
+                  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                  <button type="submit" class="px-3 py-1 rounded-lg btn-primary text-sm">Logout</button>
+                </form>
+              </div>
+            </div>
+            <div sec:authorize="!isAuthenticated()" class="border-t border-gray-700 my-2">
+              <a href="/login" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">Log In</a>
+              <a href="/signup" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">Sign Up</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Header -->
+      <div class="py-20 mt-8 text-center">
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6 animate__animated animate__fadeInDown">
+          Get in <span class="gradient-text">Touch</span>
+        </h1>
+        <p class="text-gray-300 text-xl max-w-3xl mx-auto mb-10 animate__animated animate__fadeIn animate__delay-1s">
+          Have questions, feedback, or suggestions? We'd love to hear from you.
+        </p>
+      </div>
+
+      <!-- Contact Form and Info -->
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 py-10">
+        <!-- Contact Info -->
+        <div class="lg:col-span-2">
+          <div class="space-y-8">
+            <div class="scroll-reveal">
+              <h2 class="text-2xl font-bold mb-6">Contact <span class="gradient-text">Information</span></h2>
+              <p class="text-gray-300 mb-8">
+                We're always eager to hear from our users. Whether you have questions about PowerTracker, need support, or want to share your experience, we're here to help.
+              </p>
+            </div>
+
+            <!-- Contact Cards -->
+            <div class="space-y-6">
+              <!-- Email -->
+              <div class="card-glass rounded-xl p-6 contact-card scroll-reveal">
+                <div class="flex items-start">
+                  <div class="bg-indigo-500/20 w-12 h-12 rounded-full flex items-center justify-center mr-4">
+                    <i class="fas fa-envelope text-xl text-indigo-400"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-semibold mb-1">Email Us</h3>
+                    <p class="text-gray-400 mb-2">For general inquiries and support</p>
+                    <a href="mailto:info@powertracker.ng" class="text-indigo-400 hover:underline">info@powertracker.ng</a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Phone -->
+              <div class="card-glass rounded-xl p-6 contact-card scroll-reveal" style="transition-delay: 0.2s;">
+                <div class="flex items-start">
+                  <div class="bg-purple-500/20 w-12 h-12 rounded-full flex items-center justify-center mr-4">
+                    <i class="fas fa-phone-alt text-xl text-purple-400"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-semibold mb-1">Call Us</h3>
+                    <p class="text-gray-400 mb-2">Mon-Fri, 9am-5pm (WAT)</p>
+                    <a href="tel:+234-803-123-4567" class="text-purple-400 hover:underline">+234 803 123 4567</a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Office -->
+              <div class="card-glass rounded-xl p-6 contact-card scroll-reveal" style="transition-delay: 0.4s;">
+                <div class="flex items-start">
+                  <div class="bg-blue-500/20 w-12 h-12 rounded-full flex items-center justify-center mr-4">
+                    <i class="fas fa-map-marker-alt text-xl text-blue-400"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-semibold mb-1">Visit Us</h3>
+                    <p class="text-gray-400 mb-2">Our headquarters</p>
+                    <address class="text-gray-300 not-italic">
+                      Faculty of Science<br>
+                      University of Lagos<br>
+                      Akoka, Lagos, Nigeria
+                    </address>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Social -->
+              <div class="card-glass rounded-xl p-6 contact-card scroll-reveal" style="transition-delay: 0.6s;">
+                <div class="flex items-start">
+                  <div class="bg-green-500/20 w-12 h-12 rounded-full flex items-center justify-center mr-4">
+                    <i class="fas fa-share-alt text-xl text-green-400"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-semibold mb-1">Follow Us</h3>
+                    <p class="text-gray-400 mb-3">Stay connected with us</p>
+                    <div class="flex space-x-4">
+                      <a href="#" class="text-gray-400 hover:text-indigo-400 text-xl"><i class="fab fa-twitter"></i></a>
+                      <a href="#" class="text-gray-400 hover:text-indigo-400 text-xl"><i class="fab fa-facebook"></i></a>
+                      <a href="#" class="text-gray-400 hover:text-indigo-400 text-xl"><i class="fab fa-instagram"></i></a>
+                      <a href="#" class="text-gray-400 hover:text-indigo-400 text-xl"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Form -->
+        <div class="lg:col-span-3">
+          <div class="card-glass rounded-xl p-8 animate__animated animate__fadeInRight">
+            <h2 class="text-2xl font-bold mb-6">Send Us a <span class="gradient-text">Message</span></h2>
+            <form th:action="@{/contact/submit}" method="post" id="contactForm">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Name -->
+                <div>
+                  <label for="name" class="block text-sm font-medium text-gray-300 mb-2">Your Name</label>
+                  <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    placeholder="John Doe"
+                    class="w-full px-4 py-3 rounded-lg input-field text-white placeholder-gray-500 focus:outline-none"
+                    required
+                  />
+                </div>
+                
+                <!-- Email -->
+                <div>
+                  <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                  <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    placeholder="your@email.com"
+                    class="w-full px-4 py-3 rounded-lg input-field text-white placeholder-gray-500 focus:outline-none"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <!-- Subject -->
+              <div class="mb-6">
+                <label for="subject" class="block text-sm font-medium text-gray-300 mb-2">Subject</label>
+                <input 
+                  type="text" 
+                  id="subject" 
+                  name="subject" 
+                  placeholder="How can we help you?"
+                  class="w-full px-4 py-3 rounded-lg input-field text-white placeholder-gray-500 focus:outline-none"
+                />
+              </div>
+              
+              <!-- Category -->
+              <div class="mb-6">
+                <label for="category" class="block text-sm font-medium text-gray-300 mb-2">Inquiry Type</label>
+                <select 
+                  id="category" 
+                  name="category"
+                  class="w-full px-4 py-3 rounded-lg input-field text-white focus:outline-none appearance-none"
+                >
+                  <option value="general">General Question</option>
+                  <option value="support">Technical Support</option>
+                  <option value="billing">Billing Inquiry</option>
+                  <option value="feedback">Feedback</option>
+                  <option value="partnership">Partnership Opportunity</option>
+                </select>
+              </div>
+              
+              <!-- Message -->
+              <div class="mb-8">
+                <label for="message" class="block text-sm font-medium text-gray-300 mb-2">Your Message</label>
+                <textarea 
+                  id="message" 
+                  name="message" 
+                  rows="6" 
+                  placeholder="Tell us what's on your mind..."
+                  class="w-full px-4 py-3 rounded-lg input-field text-white placeholder-gray-500 focus:outline-none resize-none"
+                  required
+                ></textarea>
+              </div>
+              
+              <!-- Submit Button -->
+              <div>
+                <button 
+                  type="submit" 
+                  class="w-full px-6 py-4 rounded-lg btn-primary text-white font-medium flex items-center justify-center"
+                >
+                  <span>Send Message</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- FAQ Section -->
+          <div class="mt-12 scroll-reveal">
+            <h3 class="text-xl font-bold mb-6">Frequently Asked <span class="gradient-text">Questions</span></h3>
+            
+            <div class="space-y-4">
+              <!-- FAQ Item 1 -->
+              <div class="card-glass rounded-xl overflow-hidden">
+                <button class="faq-toggle w-full px-6 py-4 text-left flex justify-between items-center">
+                  <span class="font-medium">How accurate are the energy cost calculations?</span>
+                  <svg class="faq-icon w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+                <div class="faq-answer px-6 py-0 max-h-0 overflow-hidden transition-all duration-300">
+                  <div class="py-4 border-t border-gray-700">
+                    <p class="text-gray-400">
+                      Our calculations are based on the specifications provided by appliance manufacturers and your local electricity rates. They're typically accurate within 5-10% of actual usage, but factors like appliance age and efficiency can affect results.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- FAQ Item 2 -->
+              <div class="card-glass rounded-xl overflow-hidden">
+                <button class="faq-toggle w-full px-6 py-4 text-left flex justify-between items-center">
+                  <span class="font-medium">Is my usage data secure?</span>
+                  <svg class="faq-icon w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+                <div class="faq-answer px-6 py-0 max-h-0 overflow-hidden transition-all duration-300">
+                  <div class="py-4 border-t border-gray-700">
+                    <p class="text-gray-400">
+                      Absolutely. We use industry-standard encryption and security practices to protect your data. We never share your personal information or usage data with third parties without your explicit consent.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- FAQ Item 3 -->
+              <div class="card-glass rounded-xl overflow-hidden">
+                <button class="faq-toggle w-full px-6 py-4 text-left flex justify-between items-center">
+                  <span class="font-medium">Can I export my usage data?</span>
+                  <svg class="faq-icon w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+                <div class="faq-answer px-6 py-0 max-h-0 overflow-hidden transition-all duration-300">
+                  <div class="py-4 border-t border-gray-700">
+                    <p class="text-gray-400">
+                      Yes, you can export your usage data in various formats including CSV and PDF from your dashboard. This feature is available to all registered users.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map Section -->
+      <div class="py-12">
+        <div class="card-glass rounded-xl overflow-hidden scroll-reveal">
+          <div class="aspect-w-16 aspect-h-9" style="height: 400px;">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.1040508925363!2d3.3952542748614397!3d6.514647723754457!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x103b8cf3fae871f1%3A0xd761b230dbd18e2a!2sUniversity%20of%20Lagos!5e0!3m2!1sen!2sng!4v1714644837!5m2!1sen!2sng" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="py-10 mt-10 border-t border-gray-800">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+          <div>
+            <h3 class="text-xl font-bold mb-4 gradient-text">PowerTracker</h3>
+            <p class="text-gray-400">
+              Helping you manage and optimize your electricity usage for a greener planet and lower bills.
+            </p>
+          </div>
+          <div>
+            <h4 class="text-md font-semibold mb-4 text-white">Quick Links</h4>
+            <ul class="space-y-2">
+              <li><a href="/" class="text-gray-400 hover:text-indigo-400">Home</a></li>
+              <li><a href="/dashboard" class="text-gray-400 hover:text-indigo-400">Dashboard</a></li>
+              <li><a href="/about" class="text-gray-400 hover:text-indigo-400">About Us</a></li>
+              <li><a href="/contact" class="text-gray-400 hover:text-indigo-400">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-md font-semibold mb-4 text-white">Legal</h4>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-gray-400 hover:text-indigo-400">Privacy Policy</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-indigo-400">Terms of Service</a></li>
+              <li><a href="#" class="text-gray-400 hover:text-indigo-400">Cookie Policy</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-md font-semibold mb-4 text-white">Connect With Us</h4>
+            <div class="flex space-x-4">
+              <a href="#" class="text-gray-400 hover:text-indigo-400 text-xl"><i class="fab fa-twitter"></i></a>
+              <a href="#" class="text-gray-400 hover:text-indigo-400 text-xl"><i class="fab fa-facebook"></i></a>
+              <a href="#" class="text-gray-400 hover:text-indigo-400 text-xl"><i class="fab fa-instagram"></i></a>
+              <a href="#" class="text-gray-400 hover:text-indigo-400 text-xl"><i class="fab fa-linkedin"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="mt-10 pt-6 border-t border-gray-800 text-center text-gray-500 text-sm">
+          &copy; 2025 PowerTracker. All rights reserved.
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      // Mobile menu toggle
+      document.querySelector('.mobile-menu-button').addEventListener('click', function() {
+        document.querySelector('.mobile-menu').classList.toggle('hidden');
+      });
+
+      // FAQ toggles
+      document.querySelectorAll('.faq-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function() {
+          const answer = this.nextElementSibling;
+          const icon = this.querySelector('.faq-icon');
+          
+          // Toggle active state
+          if (answer.style.maxHeight) {
+            answer.style.maxHeight = null;
+            answer.style.paddingTop = '0';
+            answer.style.paddingBottom = '0';
+            icon.classList.remove('rotate-180');
+          } else {
+            answer.style.maxHeight = answer.scrollHeight + 'px';
+            icon.classList.add('rotate-180');
+          }
+        });
+      });
+
+      // Scroll animations
+      document.addEventListener('DOMContentLoaded', function() {
+        const scrollRevealElements = document.querySelectorAll('.scroll-reveal');
+        
+        const checkScroll = function() {
+          scrollRevealElements.forEach(element => {
+            const elementTop = element.getBoundingClientRect().top;
+            const windowHeight = window.innerHeight;
+            
+            if (elementTop < windowHeight * 0.9) {
+              element.classList.add('visible');
+            }
+          });
+        };
+        
+        // Check on initial load
+        checkScroll();
+        
+        // Check on scroll
+        window.addEventListener('scroll', checkScroll);
+      });
+
+      // Form submission handler
+      document.getElementById('contactForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // In a real implementation, you would handle form submission here
+        // For now, we'll just show a success message
+        alert('Thank you for your message! We will get back to you soon.');
+        this.reset();
+      });
+    </script>
+  </body>
+</html>

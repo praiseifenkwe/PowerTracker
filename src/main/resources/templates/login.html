@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | PowerTracker</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1c2d 0%, #121420 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .card-glass {
+            background: rgba(30, 32, 47, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(79, 84, 121, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        .input-field {
+            background: rgba(30, 32, 47, 0.6);
+            border: 1px solid rgba(79, 84, 121, 0.3);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+            outline: none;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
+            transform: translateY(-1px);
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .bg-auth-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366f1' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background-color: #1a1c2d;
+        }
+        .form-container {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .form-floating-label {
+            position: absolute;
+            left: 1rem;
+            top: 0.75rem;
+            transition: all 0.2s ease;
+            pointer-events: none;
+            color: rgba(156, 163, 175, 1);
+            padding-left: 2rem;
+        }
+        .input-field:focus + .form-floating-label,
+        .input-field:not(:placeholder-shown) + .form-floating-label {
+            transform: translateY(-1.75rem) scale(0.85);
+            color: #6366f1;
+            padding-left: 0;
+        }
+        .eye-icon {
+            transition: all 0.3s ease;
+        }
+        .eye-icon:hover {
+            color: #6366f1;
+        }
+        .form-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+        }
+        .form-divider::before,
+        .form-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid rgba(79, 84, 121, 0.3);
+        }
+        .form-divider::before {
+            margin-right: 0.5em;
+        }
+        .form-divider::after {
+            margin-left: 0.5em;
+        }
+        .social-btn {
+            transition: all 0.3s ease;
+            background: rgba(30, 32, 47, 0.8);
+            border: 1px solid rgba(79, 84, 121, 0.3);
+        }
+        .social-btn:hover {
+            transform: translateY(-2px);
+            background: rgba(30, 32, 47, 1);
+        }
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        /* Fix for any light-colored input fields or checkboxes */
+        input[type="checkbox"] {
+            background-color: rgba(30, 32, 47, 0.8);
+            border-color: rgba(79, 84, 121, 0.3);
+        }
+        input[type="checkbox"]:checked {
+            background-color: #6366f1;
+        }
+        a {
+            transition: all 0.3s ease;
+        }
+        .mobile-menu {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 60px;
+            z-index: 50;
+            margin: 0 1rem;
+        }
+        .mobile-menu .card-glass {
+            background: rgba(30, 32, 47, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        @media (max-width: 640px) {
+            .card-glass {
+                padding: 1.5rem;
+            }
+            .form-container {
+                margin-top: 1rem;
+            }
+            .input-field {
+                padding-top: 0.625rem;
+                padding-bottom: 0.625rem;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen bg-auth-pattern">
+    <nav class="py-6 px-6 sm:px-10 container mx-auto relative">
+        <div class="flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold gradient-text">PowerTracker</a>
+            <div class="hidden md:flex space-x-6">
+                <a href="/" class="text-gray-300 hover:text-white nav-link">Home</a>
+                <a href="/about" class="text-gray-300 hover:text-white nav-link">About</a>
+                <a href="/contact" class="text-gray-300 hover:text-white nav-link">Contact</a>
+            </div>
+            
+            <!-- Mobile menu button -->
+            <div class="md:hidden flex items-center">
+                <button class="mobile-menu-button">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div class="md:hidden mobile-menu hidden">
+            <div class="card-glass rounded-lg mt-2 py-2">
+                <a href="/" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">Home</a>
+                <a href="/about" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">About</a>
+                <a href="/contact" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">Contact</a>
+                <div class="border-t border-gray-700 my-2"></div>
+                <a href="/signup" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex-grow flex items-center justify-center py-10 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8 form-container">
+            <div class="text-center">
+                <h2 class="text-3xl font-extrabold text-white mb-2">Welcome Back</h2>
+                <p class="text-gray-400">Sign in to manage your energy usage</p>
+                <div th:if="${param.error}" class="mt-4 p-3 bg-red-500/20 text-red-300 rounded-lg text-sm font-medium animate__animated animate__headShake">
+                    <i class="fas fa-exclamation-circle mr-2"></i>Invalid email or password
+                </div>
+                <div th:if="${param.logout}" class="mt-4 p-3 bg-green-500/20 text-green-300 rounded-lg text-sm font-medium">
+                    <i class="fas fa-check-circle mr-2"></i>You have been logged out successfully
+                </div>
+            </div>
+
+            <div class="card-glass rounded-xl overflow-hidden">
+                <div class="p-8">
+                    <form th:action="@{/login}" method="post" class="space-y-6">
+                        <!-- Email Field -->
+                        <div class="relative">
+                            <div class="flex items-center absolute inset-y-0 left-0 pl-3 pointer-events-none">
+                                <i class="fas fa-envelope text-indigo-400"></i>
+                            </div>
+                            <input type="email" id="email" name="email" 
+                                   class="input-field w-full px-10 py-3 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                   placeholder="Email Address" required autocomplete="email">
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="relative">
+                            <div class="flex items-center absolute inset-y-0 left-0 pl-3 pointer-events-none">
+                                <i class="fas fa-lock text-indigo-400"></i>
+                            </div>
+                            <input type="password" id="password" name="password" 
+                                   class="input-field w-full px-10 py-3 pr-10 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                   placeholder="Password" required autocomplete="current-password">
+                            <button type="button" 
+                                    class="absolute inset-y-0 right-0 flex items-center pr-3 eye-icon toggle-password" 
+                                    aria-label="Toggle password visibility">
+                                <i class="fas fa-eye text-indigo-400"></i>
+                            </button>
+                        </div>
+
+                        <!-- Remember Me -->
+                        <div class="flex items-center mb-6">
+                            <input id="remember-me" name="remember-me" type="checkbox" 
+                                   class="rounded-sm bg-indigo-500/10 border-indigo-500/30 text-indigo-600 focus:ring-indigo-500">
+                            <label for="remember-me" class="ml-2 text-sm text-gray-300">Remember me</label>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div>
+                            <button type="submit" 
+                                    class="btn-primary w-full flex justify-center py-3 px-4 rounded-lg text-white font-medium">
+                                <span>Sign In</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Social login section removed -->
+                </div>
+            </div>
+
+            <div class="text-center mt-6">
+                <p class="text-gray-400">
+                    Don't have an account?
+                    <a href="/signup" class="font-medium text-indigo-400 hover:text-indigo-300">Sign up</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-6 px-6 sm:px-10">
+        <div class="container mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="text-gray-400 text-sm mb-4 md:mb-0">
+                    &copy; 2025 PowerTracker. All rights reserved.
+                </div>
+                <div class="flex space-x-6">
+                    <a href="/privacy-policy" class="text-gray-400 hover:text-indigo-400 text-sm">Privacy Policy</a>
+                    <a href="/terms-of-service" class="text-gray-400 hover:text-indigo-400 text-sm">Terms of Service</a>
+                    <a href="/cookie-policy" class="text-gray-400 hover:text-indigo-400 text-sm">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const mobileMenuButton = document.querySelector('.mobile-menu-button');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+            
+            // Password toggle
+            const passwordInput = document.getElementById('password');
+            const toggleButton = document.querySelector('.toggle-password');
+            
+            toggleButton.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                // Toggle the icon
+                if (type === 'password') {
+                    toggleButton.innerHTML = '<i class="fas fa-eye text-gray-500"></i>';
+                } else {
+                    toggleButton.innerHTML = '<i class="fas fa-eye-slash text-gray-500"></i>';
+                }
+            });
+            
+            // Form submit animation
+            const form = document.querySelector('form');
+            const button = form.querySelector('button[type="submit"]');
+            
+            form.addEventListener('submit', function() {
+                button.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Signing In...';
+                button.disabled = true;
+            });
+        });
+    </script>
+</body>
+</html>

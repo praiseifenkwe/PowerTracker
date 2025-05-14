@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PowerTracker - Smart Electricity Management</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script th:inline="javascript">
+      const csrfToken = /*[[${_csrf.token}]]*/ "";
+      const csrfHeader = /*[[${_csrf.headerName}]]*/ "";
+    </script>
+    <style>
+      /* Custom styles for a more modern look */
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+      }
+
+      .bg-gradient-custom {
+        background: linear-gradient(135deg, #1a1c2d 0%, #121420 100%);
+      }
+
+      .hero-gradient {
+        background: linear-gradient(90deg, rgba(26, 28, 45, 0.95) 0%, rgba(18, 20, 32, 0.8) 100%),
+          url('https://images.unsplash.com/photo-1599502596299-565f4bc0caf9?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MjJ8fGVsZWN0cmljaXR5fGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+        background-size: cover;
+        background-position: center;
+      }
+
+      .card-glass {
+        background: rgba(30, 32, 47, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(79, 84, 121, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      }
+
+      .feature-card {
+        transition: all 0.3s ease;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .gradient-text {
+        background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary:hover {
+        box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
+        transform: translateY(-1px);
+      }
+
+      .nav-item {
+        position: relative;
+      }
+
+      .nav-item::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -2px;
+        left: 0;
+        background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+        transition: width 0.3s ease;
+      }
+
+      .nav-item:hover::after,
+      .nav-item.active::after {
+        width: 100%;
+      }
+
+      .scroll-reveal {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 1s ease;
+      }
+
+      .scroll-reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .testimonial-card {
+        transition: all 0.3s ease;
+      }
+
+      .testimonial-card:hover {
+        transform: scale(1.02);
+      }
+
+      .custom-shape-divider {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        overflow: hidden;
+        line-height: 0;
+      }
+
+      .custom-shape-divider svg {
+        position: relative;
+        display: block;
+        width: calc(100% + 1.3px);
+        height: 80px;
+      }
+
+      .custom-shape-divider .shape-fill {
+        fill: #1a1c2d;
+      }
+
+      .mobile-menu {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 60px;
+        z-index: 50;
+        margin: 0 1rem;
+      }
+      .mobile-menu .card-glass {
+        background: rgba(30, 32, 47, 0.95);
+        backdrop-filter: blur(10px);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-gradient-custom text-gray-200" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <div class="container mx-auto py-4 px-4">
+      <!-- Navigation -->
+      <nav class="relative z-10">
+        <div class="flex justify-between items-center py-4">
+          <div class="flex items-center">
+            <div class="text-2xl font-bold text-white">
+              <span class="gradient-text">PowerTracker</span>
+            </div>
+          </div>
+          <div class="hidden md:flex space-x-10">
+            <a href="/" class="nav-item active text-white">Home</a>
+            <a href="/dashboard" class="nav-item text-gray-300 hover:text-white">Dashboard</a>
+            <a href="/about" class="nav-item text-gray-300 hover:text-white">About</a>
+            <a href="/contact" class="nav-item text-gray-300 hover:text-white">Contact</a>
+          </div>
+          <div class="hidden md:block">
+            <div sec:authorize="isAuthenticated()">
+              <span class="mr-2">Welcome, <span th:text="${#strings.capitalize(displayName)}"></span></span>
+              <form th:action="@{/logout}" method="post" class="inline">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" class="px-4 py-2 rounded-lg btn-primary">Logout</button>
+              </form>
+            </div>
+            <div sec:authorize="!isAuthenticated()">
+              <a href="/login" class="px-4 py-2 rounded-lg btn-primary mr-2">Login</a>
+              <a href="/signup" class="px-4 py-2 rounded-lg bg-transparent border border-indigo-500 hover:bg-indigo-500/20 transition-all">Sign Up</a>
+            </div>
+          </div>
+          <!-- Mobile menu button -->
+          <div class="md:hidden flex items-center">
+            <button class="mobile-menu-button">
+              <svg class="w-6 h-6 text-white" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <!-- Mobile menu -->
+        <div class="md:hidden mobile-menu hidden">
+          <div class="card-glass rounded-lg mt-2 py-2">
+            <a href="/" class="block px-4 py-2 text-white bg-indigo-500/20">Home</a>
+            <a href="/dashboard" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">Dashboard</a>
+            <a href="/about" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">About</a>
+            <a href="/contact" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">Contact</a>
+            <div sec:authorize="isAuthenticated()" class="border-t border-gray-700 my-2 px-4 py-2">
+              <div class="flex justify-between items-center">
+                <span>Welcome, <span th:text="${#strings.capitalize(displayName)}"></span></span>
+                <form th:action="@{/logout}" method="post" class="inline">
+                  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                  <button type="submit" class="px-3 py-1 rounded-lg btn-primary text-sm">Logout</button>
+                </form>
+              </div>
+            </div>
+            <div sec:authorize="!isAuthenticated()" class="border-t border-gray-700 my-2">
+              <a href="/login" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">Log In</a>
+              <a href="/signup" class="block px-4 py-2 text-gray-300 hover:bg-indigo-500/10 hover:text-white">Sign Up</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Hero Section -->
+      <div class="hero-gradient rounded-3xl overflow-hidden mt-8 relative">
+        <div class="container mx-auto px-6 py-20">
+          <div class="flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 animate__animated animate__fadeInLeft">
+              <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
+                Manage & Optimize Your <span class="gradient-text">Electricity Usage</span>
+              </h1>
+              <p class="text-gray-300 text-xl mb-8">
+                Track your energy consumption, reduce costs, and minimize your carbon footprint with our powerful, intuitive electricity usage calculator.
+              </p>
+              <div class="flex space-x-4">
+                <a href="/dashboard" class="px-6 py-3 rounded-lg btn-primary text-lg font-medium">Get Started</a>
+                <a href="/about" class="px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 text-lg font-medium transition-all">Learn More</a>
+              </div>
+            </div>
+            <div class="md:w-1/2 mt-12 md:mt-0 animate__animated animate__fadeInRight">
+              <div class="card-glass p-5 rounded-xl overflow-hidden">
+                <!-- Premium Dashboard Animation -->
+                <div class="relative h-80 rounded-lg overflow-hidden bg-gradient-to-br from-gray-900/50 to-gray-900/30 border border-indigo-900/20">
+                  
+                  <!-- Glowing background elements -->
+                  <div class="absolute top-10 left-10 w-32 h-32 bg-indigo-500/10 rounded-full filter blur-xl"></div>
+                  <div class="absolute bottom-10 right-20 w-40 h-40 bg-purple-500/10 rounded-full filter blur-xl"></div>
+                  
+                  <!-- Dashboard Header -->
+                  <div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-center border-b border-indigo-900/20">
+                    <div class="flex items-center">
+                      <div class="w-3 h-3 rounded-full bg-indigo-500 mr-2 animate-pulse"></div>
+                      <span class="text-white font-semibold text-sm">Live Dashboard</span>
+                    </div>
+                    <div class="flex space-x-2">
+                      <div class="text-xs text-gray-400 px-2 py-1 rounded-full bg-gray-800/50 border border-gray-700/50">Premium</div>
+                      <div class="text-xs text-gray-400 px-2 py-1 rounded-full bg-gray-800/50 border border-gray-700/50">Real-time</div>
+                    </div>
+                  </div>
+                  
+                  <!-- Main Dashboard Content -->
+                  <div class="absolute top-16 left-4 right-4 bottom-4 grid grid-cols-3 gap-3">
+                    <!-- Energy Usage Card -->
+                    <div class="card-glass rounded-lg p-4 col-span-2 flex flex-col">
+                      <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-white text-sm font-medium">Monthly Energy Consumption</h3>
+                        <div class="bg-indigo-500/20 text-indigo-300 text-xs px-2 py-1 rounded-full">-12% vs last month</div>
+                      </div>
+                      
+                      <!-- Animated Chart Visualization -->
+                      <div class="flex-grow relative mt-2">
+                        <!-- Fancy Chart Background -->
+                        <div class="absolute inset-0 flex items-end">
+                          <div class="h-20 w-5 bg-gradient-to-t from-indigo-500/40 to-indigo-500/10 rounded-sm mx-2 transform transition-all duration-700" style="height: 40%"></div>
+                          <div class="h-20 w-5 bg-gradient-to-t from-indigo-500/40 to-indigo-500/10 rounded-sm mx-2 transform transition-all duration-700" style="height: 60%"></div>
+                          <div class="h-20 w-5 bg-gradient-to-t from-indigo-500/40 to-indigo-500/10 rounded-sm mx-2 transform transition-all duration-700" style="height: 45%"></div>
+                          <div class="h-20 w-5 bg-gradient-to-t from-indigo-500/40 to-indigo-500/10 rounded-sm mx-2 transform transition-all duration-700" style="height: 70%"></div>
+                          <div class="h-20 w-5 bg-gradient-to-t from-purple-500/40 to-purple-500/10 rounded-sm mx-2 transform transition-all duration-700" style="height: 55%"></div>
+                          <div class="h-20 w-5 bg-gradient-to-t from-purple-500/40 to-purple-500/10 rounded-sm mx-2 transform transition-all duration-700" style="height: 35%"></div>
+                        </div>
+                        
+                        <!-- Chart Line -->
+                        <div class="absolute inset-x-0 bottom-0 h-px bg-indigo-500/30"></div>
+                        
+                        <!-- Glowing Dots -->
+                        <div class="absolute bottom-8 left-3 w-2 h-2 rounded-full bg-indigo-400 glow"></div>
+                        <div class="absolute bottom-16 left-10 w-2 h-2 rounded-full bg-indigo-400 glow"></div>
+                        <div class="absolute bottom-12 left-16 w-2 h-2 rounded-full bg-indigo-400 glow"></div>
+                        <div class="absolute bottom-18 left-22 w-2 h-2 rounded-full bg-indigo-400 glow"></div>
+                      </div>
+                    </div>
+                    
+                    <!-- Stats Cards -->
+                    <div class="flex flex-col space-y-3">
+                      <div class="card-glass rounded-lg p-3 flex flex-col justify-center">
+                        <div class="text-gray-400 text-xs mb-1">Total Energy</div>
+                        <div class="text-white font-bold text-xl">284 kWh</div>
+                        <div class="text-indigo-400 text-xs">Real-time tracking</div>
+                      </div>
+                      
+                      <div class="card-glass rounded-lg p-3 flex flex-col justify-center">
+                        <div class="text-gray-400 text-xs mb-1">Cost</div>
+                        <div class="text-white font-bold text-xl">₦64.28</div>
+                        <div class="text-green-400 text-xs">₦12.40 saved</div>
+                      </div>
+                      
+                      <div class="card-glass rounded-lg p-3 flex flex-col justify-center">
+                        <div class="text-gray-400 text-xs mb-1">Efficiency</div>
+                        <div class="text-white font-bold text-xl">86%</div>
+                        <div class="text-indigo-400 text-xs">Above average</div>
+                      </div>
+                    </div>
+                    
+                    <!-- Bottom Card -->
+                    <div class="card-glass rounded-lg p-3 col-span-3">
+                      <div class="flex justify-between items-center">
+                        <h3 class="text-white text-sm font-medium">Top Energy Consumers</h3>
+                        <div class="text-indigo-400 text-xs cursor-pointer">View All</div>
+                      </div>
+                      
+                      <div class="flex justify-between items-center mt-2 text-xs">
+                        <div class="flex items-center">
+                          <div class="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center mr-2">
+                            <i class="fas fa-snowflake text-indigo-400"></i>
+                          </div>
+                          <span class="text-gray-300">Air Conditioner</span>
+                        </div>
+                        <div class="text-gray-400">95 kWh</div>
+                        <div class="text-indigo-400">₦21.85</div>
+                        <div class="px-2 py-1 rounded-full bg-red-500/20 text-red-300 text-xs">High</div>
+                      </div>
+                      
+                      <div class="flex justify-between items-center mt-2 text-xs">
+                        <div class="flex items-center">
+                          <div class="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center mr-2">
+                            <i class="fas fa-utensils text-indigo-400"></i>
+                          </div>
+                          <span class="text-gray-300">Refrigerator</span>
+                        </div>
+                        <div class="text-gray-400">72 kWh</div>
+                        <div class="text-indigo-400">₦16.56</div>
+                        <div class="px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-300 text-xs">Medium</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <style>
+                @keyframes glow {
+                  0%, 100% { box-shadow: 0 0 5px 2px rgba(99, 102, 241, 0.3); }
+                  50% { box-shadow: 0 0 10px 3px rgba(99, 102, 241, 0.6); }
+                }
+                .glow {
+                  animation: glow 2s infinite;
+                }
+              </style>
+            </div>
+          </div>
+        </div>
+        <!-- Wave Shape Divider -->
+        <div class="custom-shape-divider">
+          <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Features Section -->
+      <div class="py-20">
+        <div class="text-center mb-16 scroll-reveal">
+          <h2 class="text-3xl md:text-4xl font-bold mb-4">Why Choose <span class="gradient-text">PowerTracker</span>?</h2>
+          <p class="text-gray-400 max-w-2xl mx-auto text-lg">
+            Our platform offers a comprehensive suite of tools designed to help you manage and optimize your electricity usage.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- Feature 1 -->
+          <div class="card-glass rounded-xl p-6 feature-card scroll-reveal">
+            <div class="bg-indigo-500/20 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+              <i class="fas fa-chart-line text-3xl text-indigo-400"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Real-time Tracking</h3>
+            <p class="text-gray-400">
+              Monitor your electricity usage in real-time and get insights into your consumption patterns.
+            </p>
+          </div>
+
+          <!-- Feature 2 -->
+          <div class="card-glass rounded-xl p-6 feature-card scroll-reveal" style="transition-delay: 0.2s;">
+            <div class="bg-purple-500/20 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+              <i class="fas fa-calculator text-3xl text-purple-400"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Cost Calculator</h3>
+            <p class="text-gray-400">
+              Accurate estimations of your electricity costs based on your usage and current rates.
+            </p>
+          </div>
+
+          <!-- Feature 3 -->
+          <div class="card-glass rounded-xl p-6 feature-card scroll-reveal" style="transition-delay: 0.4s;">
+            <div class="bg-blue-500/20 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+              <i class="fas fa-lightbulb text-3xl text-blue-400"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Usage Optimization</h3>
+            <p class="text-gray-400">
+              Get personalized recommendations to optimize your electricity usage and reduce costs.
+            </p>
+          </div>
+
+          <!-- Feature 4 -->
+          <div class="card-glass rounded-xl p-6 feature-card scroll-reveal">
+            <div class="bg-green-500/20 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+              <i class="fas fa-history text-3xl text-green-400"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Historical Analysis</h3>
+            <p class="text-gray-400">
+              View and analyze your electricity usage history to identify trends and opportunities for savings.
+            </p>
+          </div>
+
+          <!-- Feature 5 -->
+          <div class="card-glass rounded-xl p-6 feature-card scroll-reveal" style="transition-delay: 0.2s;">
+            <div class="bg-red-500/20 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+              <i class="fas fa-tachometer-alt text-3xl text-red-400"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Appliance-Specific Metrics</h3>
+            <p class="text-gray-400">
+              Track the energy consumption of individual appliances to identify energy hogs.
+            </p>
+          </div>
+
+          <!-- Feature 6 -->
+          <div class="card-glass rounded-xl p-6 feature-card scroll-reveal" style="transition-delay: 0.4s;">
+            <div class="bg-yellow-500/20 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+              <i class="fas fa-leaf text-3xl text-yellow-400"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Environmental Impact</h3>
+            <p class="text-gray-400">
+              Understand your carbon footprint and take steps to reduce your environmental impact.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonials Section -->
+      <div class="py-16">
+        <div class="text-center mb-16 scroll-reveal">
+          <h2 class="text-3xl md:text-4xl font-bold mb-4">What Our <span class="gradient-text">Users Say</span></h2>
+          <p class="text-gray-400 max-w-2xl mx-auto text-lg">
+            Don't just take our word for it. Here's what our users have to say about their experience.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- Testimonial 1 -->
+          <div class="card-glass rounded-xl p-6 testimonial-card scroll-reveal">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl">S</div>
+              <div class="ml-4">
+                <h4 class="font-semibold text-white">Sarah Johnson</h4>
+                <p class="text-gray-400 text-sm">Homeowner</p>
+              </div>
+            </div>
+            <p class="text-gray-300">
+              "PowerTracker has completely changed how I manage my home's electricity usage. I've reduced my monthly bill by 20% in just 3 months!"
+            </p>
+            <div class="mt-4 flex text-yellow-400">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+          </div>
+
+          <!-- Testimonial 2 -->
+          <div class="card-glass rounded-xl p-6 testimonial-card scroll-reveal" style="transition-delay: 0.2s;">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-xl">M</div>
+              <div class="ml-4">
+                <h4 class="font-semibold text-white">Michael Chen</h4>
+                <p class="text-gray-400 text-sm">Small Business Owner</p>
+              </div>
+            </div>
+            <p class="text-gray-300">
+              "The insights from PowerTracker helped us identify inefficient equipment in our office. We've now optimized our setup and saved thousands."
+            </p>
+            <div class="mt-4 flex text-yellow-400">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star-half-alt"></i>
+            </div>
+          </div>
+
+          <!-- Testimonial 3 -->
+          <div class="card-glass rounded-xl p-6 testimonial-card scroll-reveal" style="transition-delay: 0.4s;">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center text-white font-bold text-xl">L</div>
+              <div class="ml-4">
+                <h4 class="font-semibold text-white">Lisa Rodriguez</h4>
+                <p class="text-gray-400 text-sm">Apartment Renter</p>
+              </div>
+            </div>
+            <p class="text-gray-300">
+              "As a renter, I thought I had little control over my energy costs. PowerTracker showed me simple changes that cut my bill significantly!"
+            </p>
+            <div class="mt-4 flex text-yellow-400">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA Section -->
+      <div class="py-16">
+        <div class="card-glass rounded-2xl overflow-hidden">
+          <div class="p-8 md:p-12 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6 scroll-reveal">Ready to Take Control of Your <span class="gradient-text">Energy Consumption</span>?</h2>
+            <p class="text-gray-300 text-xl mb-8 max-w-3xl mx-auto scroll-reveal" style="transition-delay: 0.2s;">
+              Join thousands of users who are saving money and reducing their carbon footprint with PowerTracker.
+            </p>
+            <div class="scroll-reveal" style="transition-delay: 0.4s;">
+              <a href="/signup" class="px-8 py-4 rounded-lg btn-primary text-lg font-medium inline-block">Get Started for Free</a>
+              <p class="mt-4 text-gray-400">No credit card required. Start tracking in minutes.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="py-10 mt-10 border-t border-gray-800">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+          <div>
+            <h3 class="text-xl font-bold mb-4 gradient-text">PowerTracker</h3>
+            <p class="text-gray-400">
+              Helping you manage and optimize your electricity usage for a greener planet and lower bills.
+            </p>
+          </div>
+          <div>
+            <h4 class="text-md font-semibold mb-4 text-white">Quick Links</h4>
+            <ul class="space-y-2">
+              <li><a href="/" class="text-gray-400 hover:text-indigo-400">Home</a></li>
+              <li><a href="/dashboard" class="text-gray-400 hover:text-indigo-400">Dashboard</a></li>
+              <li><a href="/about" class="text-gray-400 hover:text-indigo-400">About Us</a></li>
+              <li><a href="/contact" class="text-gray-400 hover:text-indigo-400">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-md font-semibold mb-4 text-white">Legal</h4>
+            <ul class="space-y-2">
+              <li><a href="/privacy-policy" class="text-gray-400 hover:text-indigo-400">Privacy Policy</a></li>
+              <li><a href="/terms-of-service" class="text-gray-400 hover:text-indigo-400">Terms of Service</a></li>
+              <li><a href="/cookie-policy" class="text-gray-400 hover:text-indigo-400">Cookie Policy</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-md font-semibold mb-4 text-white">Connect With Us</h4>
+            <div class="flex space-x-4">
+              <a href="#" class="text-gray-400 hover:text-indigo-400 text-xl"><i class="fab fa-twitter"></i></a>
+              <a href="#" class="text-gray-400 hover:text-indigo-400 text-xl"><i class="fab fa-facebook"></i></a>
+              <a href="#" class="text-gray-400 hover:text-indigo-400 text-xl"><i class="fab fa-instagram"></i></a>
+              <a href="#" class="text-gray-400 hover:text-indigo-400 text-xl"><i class="fab fa-linkedin"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="mt-10 pt-6 border-t border-gray-800 text-center text-gray-500 text-sm">
+          &copy; 2025 PowerTracker. All rights reserved.
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      // Mobile menu toggle
+      document.querySelector('.mobile-menu-button').addEventListener('click', function() {
+        document.querySelector('.mobile-menu').classList.toggle('hidden');
+      });
+
+      // Scroll animations
+      document.addEventListener('DOMContentLoaded', function() {
+        const scrollRevealElements = document.querySelectorAll('.scroll-reveal');
+        
+        const checkScroll = function() {
+          scrollRevealElements.forEach(element => {
+            const elementTop = element.getBoundingClientRect().top;
+            const windowHeight = window.innerHeight;
+            
+            if (elementTop < windowHeight * 0.9) {
+              element.classList.add('visible');
+            }
+          });
+        };
+        
+        // Check on initial load
+        checkScroll();
+        
+        // Check on scroll
+        window.addEventListener('scroll', checkScroll);
+      });
+    </script>
+  </body>
+</html>

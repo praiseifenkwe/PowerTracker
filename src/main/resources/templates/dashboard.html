@@ -1,0 +1,3461 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Power Dashboard | PowerTracker</title>
+    <link rel="icon" type="image/png" th:href="@{/favicon.png}" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script th:inline="javascript">
+      const csrfToken = /*[[${_csrf.token}]]*/ "";
+      const csrfHeader = /*[[${_csrf.headerName}]]*/ "";
+    </script>
+    
+    <!-- Enhanced Visualization Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.10.7/dayjs.min.js"></script>
+    <style>
+      /* Custom styles for a premium dashboard */
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+      }
+
+      .bg-gradient-custom {
+        background: linear-gradient(135deg, #1a1c2d 0%, #121420 100%);
+      }
+
+      .card-glass {
+        background: rgba(30, 32, 47, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(79, 84, 121, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      
+      .card-glass:hover {
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        transform: translateY(-2px);
+      }
+
+      .card-stat {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid rgba(99, 102, 241, 0.1);
+        position: relative;
+      }
+      
+      .card-stat::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(99, 102, 241, 0) 100%);
+        z-index: 0;
+      }
+      
+      .stat-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary:hover {
+        box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
+        transform: translateY(-1px);
+      }
+
+      .btn-secondary {
+        background: rgba(79, 84, 121, 0.15);
+        border: 1px solid rgba(79, 84, 121, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .btn-secondary:hover {
+        background: rgba(79, 84, 121, 0.25);
+      }
+      
+      .gradient-text {
+        background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .nav-item {
+        transition: all 0.2s ease;
+      }
+
+      .nav-item-active {
+        background: rgba(99, 102, 241, 0.2);
+        border-left: 3px solid #6366f1;
+      }
+
+      .input-field {
+        background: rgba(30, 32, 47, 0.6);
+        border: 1px solid rgba(79, 84, 121, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .input-field:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+      }
+
+      /* Custom range slider styling */
+      input[type="range"] {
+        appearance: none;
+        -webkit-appearance: none;
+        height: 6px;
+        background: rgba(79, 84, 121, 0.3);
+        border-radius: 5px;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #6366f1;
+        cursor: pointer;
+        box-shadow: 0 0 5px rgba(99, 102, 241, 0.5);
+      }
+
+      input[type="range"]::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #6366f1;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 0 5px rgba(99, 102, 241, 0.5);
+      }
+
+      .progress-bar {
+        height: 6px;
+        border-radius: 3px;
+        background: rgba(79, 84, 121, 0.3);
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+      }
+
+      /* Custom select styling */
+      select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 16px;
+      }
+
+      /* Tab transitions */
+      .content-tab {
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .content-tab.active {
+        display: block;
+        opacity: 1;
+      }
+
+      /* Custom scrollbar for history view */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(30, 32, 47, 0.3);
+        border-radius: 4px;
+      }
+
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(99, 102, 241, 0.5);
+        border-radius: 4px;
+      }
+
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(99, 102, 241, 0.7);
+      }
+    </style>
+    <!-- Dashboard Functionality -->    
+    <script src="/js/dashboard.js" defer></script>
+  </head>
+  <body
+    class="min-h-screen bg-gradient-custom text-gray-200"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+  >
+    <!-- Main dashboard wrapper with sidebar layout -->
+    <div class="flex h-screen overflow-hidden bg-gradient-custom">
+      <!-- Sidebar -->
+      <div id="sidebar" class="w-64 hidden lg:block bg-gradient-to-b from-gray-900/90 to-gray-900/70 border-r border-indigo-900/20 h-screen overflow-y-auto">
+        <!-- Sidebar Header with Logo -->
+        <div class="p-5 border-b border-indigo-900/20">
+          <div class="text-2xl font-bold text-white mb-1">
+            <span class="gradient-text">PowerTracker</span>
+          </div>
+          <p class="text-xs text-gray-400">Premium Dashboard</p>
+        </div>
+        
+        <!-- User Profile -->
+        <div class="p-4 border-b border-indigo-900/20">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center mr-3">
+              <i class="fas fa-user text-indigo-300"></i>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-white" th:text="${#strings.capitalize(displayName)}">User</p>
+              <p class="text-xs text-gray-400">Premium Account</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Navigation Menu -->
+        <div class="py-4">
+          <p class="text-xs text-gray-500 uppercase px-5 mb-2">Main</p>
+          <a href="/dashboard" th:class="${activeSection == 'dashboard' ? 'flex items-center px-5 py-3 text-gray-200 transition-colors hover:bg-indigo-500/10 border-l-2 border-indigo-500' : 'flex items-center px-5 py-3 text-gray-400 transition-colors hover:bg-indigo-500/10 hover:text-gray-200'}">
+            <i th:class="${activeSection == 'dashboard' ? 'fas fa-tachometer-alt w-5 text-indigo-400' : 'fas fa-tachometer-alt w-5 text-gray-500'}"></i>
+            <span class="ml-3">Dashboard</span>
+          </a>
+         
+          <a href="/analytics" th:class="${activeSection == 'analytics' ? 'flex items-center px-5 py-3 text-gray-200 transition-colors hover:bg-indigo-500/10 border-l-2 border-indigo-500' : 'flex items-center px-5 py-3 text-gray-400 transition-colors hover:bg-indigo-500/10 hover:text-gray-200'}">
+            <i th:class="${activeSection == 'analytics' ? 'fas fa-chart-line w-5 text-indigo-400' : 'fas fa-chart-line w-5 text-gray-500'}"></i>
+            <span class="ml-3">Analytics</span>
+          </a>
+          <a href="/usage-calculator" th:class="${activeSection == 'calculator' ? 'flex items-center px-5 py-3 text-gray-200 transition-colors hover:bg-indigo-500/10 border-l-2 border-indigo-500' : 'flex items-center px-5 py-3 text-gray-400 transition-colors hover:bg-indigo-500/10 hover:text-gray-200'}">
+            <i th:class="${activeSection == 'calculator' ? 'fas fa-calculator w-5 text-indigo-400' : 'fas fa-calculator w-5 text-gray-500'}"></i>
+            <span class="ml-3">Usage Calculator</span>
+          </a>
+          
+          <p class="text-xs text-gray-500 uppercase px-5 mb-2 mt-6">Management</p>
+          <a href="/usage-history" th:class="${activeSection == 'history' ? 'flex items-center px-5 py-3 text-gray-200 transition-colors hover:bg-indigo-500/10 border-l-2 border-indigo-500' : 'flex items-center px-5 py-3 text-gray-400 transition-colors hover:bg-indigo-500/10 hover:text-gray-200'}">
+            <i th:class="${activeSection == 'history' ? 'fas fa-history w-5 text-indigo-400' : 'fas fa-history w-5 text-gray-500'}"></i>
+            <span class="ml-3">Usage History</span>
+          </a>
+          <a href="/settings" th:class="${activeSection == 'settings' ? 'flex items-center px-5 py-3 text-gray-200 transition-colors hover:bg-indigo-500/10 border-l-2 border-indigo-500' : 'flex items-center px-5 py-3 text-gray-400 transition-colors hover:bg-indigo-500/10 hover:text-gray-200'}">
+            <i th:class="${activeSection == 'settings' ? 'fas fa-cog w-5 text-indigo-400' : 'fas fa-cog w-5 text-gray-500'}"></i>
+            <span class="ml-3">Settings</span>
+          </a>
+        </div>
+        
+        <!-- Footer with links -->
+        <div class="mt-auto p-4 border-t border-indigo-900/20 text-xs text-gray-500">
+          <div class="flex space-x-2">
+            <a href="#" class="hover:text-gray-300">About</a>
+            <span>•</span>
+            <a href="#" class="hover:text-gray-300">Contact</a>
+            <span>•</span>
+            <a href="#" class="hover:text-gray-300">Help</a>
+          </div>
+          <p class="mt-2">© 2025 PowerTracker</p>
+        </div>
+      </div>
+      
+      <!-- Mobile sidebar toggle removed from here - moved to navbar -->
+      
+      <!-- Main Content Area -->
+      <div class="flex-1 overflow-y-auto">
+        <!-- Top Navigation Bar -->
+        <nav class="relative z-10 bg-gray-900/40 border-b border-indigo-900/20 backdrop-blur-sm">
+          <div class="px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+              <!-- Mobile logo & title (hamburger moved to right side) -->
+              <div class="flex items-center lg:hidden">
+                <div class="text-xl font-bold text-white">
+                  <span class="gradient-text">PowerTracker</span>
+                </div>
+              </div>
+              
+              <!-- Navigation Links removed as requested -->
+              <!-- Right side controls -->
+              <div class="flex items-center space-x-4">
+                
+                <!-- User Menu -->
+                <div class="relative inline-block text-left">
+                  <div sec:authorize="isAuthenticated()" class="flex items-center">
+                    <!-- Desktop Profile Display (only visible on large screens) -->
+                    <div class="hidden lg:flex items-center">
+                      <div class="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center mr-2">
+                        <i class="fas fa-user text-indigo-300"></i>
+                      </div>
+                      <span class="text-gray-300 mr-2" th:text="${#strings.capitalize(displayName)}">User</span>
+                      <form th:action="@{/logout}" method="post" class="inline">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="px-3 py-1 rounded-lg btn-primary text-sm">Logout</button>
+                      </form>
+                    </div>
+                    
+                    <!-- Mobile/Tablet User Profile (visible when sidebar is hidden) -->
+                    <div class="flex items-center lg:hidden">
+                      <button id="userMenuToggle" class="flex items-center focus:outline-none" aria-expanded="false" aria-haspopup="true">
+                        <div class="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center">
+                          <i class="fas fa-user text-indigo-300"></i>
+                        </div>
+                      </button>
+                      
+                      <!-- Hamburger Menu (only visible when sidebar is hidden) -->
+                      <button id="navbarMenuToggle" class="ml-3 text-gray-300 hover:text-white p-2 rounded-lg" onclick="toggleMobileSidebar()">
+                        <i id="hamburgerIcon" class="fas fa-bars text-xl"></i>
+                      </button>
+                      <!-- Mobile/Tablet Dropdown Menu (visible when sidebar is hidden) -->
+                      <div id="userDropdownMenu" class="hidden absolute right-0 top-14 w-48 rounded-md shadow-lg py-1 bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
+                        <a href="/settings" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">
+                          <i class="fas fa-cog mr-2"></i> Settings
+                        </a>
+                        <form th:action="@{/logout}" method="post" class="block">
+                          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                          <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  <div sec:authorize="!isAuthenticated()">
+                    <a href="/login" class="px-4 py-2 rounded-lg btn-primary mr-2">Login</a>
+                    <a href="/signup" class="px-4 py-2 rounded-lg bg-transparent border border-indigo-500 hover:bg-indigo-500/20 transition-all">Sign Up</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </nav>
+        
+        <!-- Dashboard Content Container -->
+        <div class="px-4 sm:px-6 lg:px-8 py-8">
+          <!-- Page Title -->
+          <div class="mb-8 flex justify-between items-center">
+            <div>
+              <h1 class="text-2xl font-bold text-white">Power Dashboard</h1>
+              <p class="text-gray-400 mt-1">Monitor and manage your energy consumption</p>
+            </div>
+            <div class="flex space-x-2">
+              <button id="refreshDataBtn" onclick="refreshCurrentPage()" class="btn-primary py-2 px-4 rounded-lg flex items-center text-sm">
+                <i class="fas fa-sync-alt mr-2"></i> Refresh
+              </button>
+            </div>
+          </div>
+          
+          <!-- Dashboard Sections -->
+          <!-- Each section corresponds to a sidebar menu item -->
+          
+          <!-- Main Dashboard Section -->
+          <section id="dashboard-section" th:class="${activeSection == 'dashboard' ? 'dashboard-section' : 'dashboard-section hidden'}">
+            
+            <!-- Key Metrics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8 animate__animated animate__fadeIn">
+              <!-- Total Energy Card -->
+              <div class="card-stat bg-gradient-to-br from-indigo-900/30 to-indigo-900/10 p-6">
+                <div class="flex justify-between">
+                  <div>
+                    <p class="text-gray-400 text-sm mb-1">Total Energy</p>
+                    <h3 class="text-2xl font-bold text-white">
+                      <span id="totalEnergyValue" class="formatted-number" th:text="${#numbers.formatDecimal(totalEnergy, 1, 2)}">0.00</span> kWh
+                    </h3>
+                    <p id="energyTrend" class="text-xs mt-1">
+                      <!-- Dynamically updated by JS -->
+                      <i class="fas fa-arrow-down mr-1"></i>
+                      <span>0.0%</span>
+                      <span class="text-gray-500 ml-1">vs last month</span>
+                    </p>
+                  </div>
+                  <div class="stat-icon">
+                    <i class="fas fa-bolt text-xl text-indigo-400"></i>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Total Cost Card -->
+              <div class="card-stat bg-gradient-to-br from-indigo-900/30 to-indigo-900/10 p-6">
+                <div class="flex justify-between">
+                  <div>
+                    <p class="text-gray-400 text-sm mb-1">Total Cost</p>
+                    <h3 class="text-2xl font-bold text-white">
+                      <span class="currency-symbol">₦</span><span id="totalCostValue" class="formatted-number cost-display" th:text="${#numbers.formatDecimal(totalCost, 1, 2)}">0.00</span>
+                    </h3>
+                    <p id="costTrend" class="text-xs mt-1">
+                      <!-- Dynamically updated by JS -->
+                      <i class="fas fa-arrow-up mr-1"></i>
+                      <span>0.0%</span>
+                      <span class="text-gray-500 ml-1">vs last month</span>
+                    </p>
+                  </div>
+                  <div class="stat-icon">
+                    <i class="fas fa-dollar-sign text-xl text-indigo-400"></i>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Tracked Devices Card -->
+              <div class="card-stat bg-gradient-to-br from-indigo-900/30 to-indigo-900/10 p-6">
+                <div class="flex justify-between">
+                  <div>
+                    <p class="text-gray-400 text-sm mb-1">Tracked Devices</p>
+                    <h3 class="text-2xl font-bold text-white" id="recordCountValue" th:text="${recordCount}">0</h3>
+                    <p id="newDevicesTrend" class="text-xs mt-1">
+                      <!-- Dynamically updated by JS -->
+                      <i class="fas fa-plus mr-1"></i>
+                      <span>0 new</span>
+                      <span class="text-gray-500 ml-1">this week</span>
+                    </p>
+                  </div>
+                  <div class="stat-icon">
+                    <i class="fas fa-plug text-xl text-indigo-400"></i>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Efficiency Score Card -->
+              <div class="card-stat bg-gradient-to-br from-indigo-900/30 to-indigo-900/10 p-6">
+                <div class="flex justify-between">
+                  <div>
+                    <p class="text-gray-400 text-sm mb-1">Efficiency Score</p>
+                    <h3 class="text-2xl font-bold text-white" id="efficiencyScore">0%</h3>
+                    <p id="efficiencyTrend" class="text-xs mt-1">
+                      <!-- Dynamically updated by JS -->
+                      <i class="fas fa-arrow-up mr-1"></i>
+                      <span>0.0%</span>
+                      <span class="text-gray-500 ml-1">improvement</span>
+                    </p>
+                  </div>
+                  <div class="stat-icon">
+                    <i class="fas fa-tachometer-alt text-xl text-indigo-400"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Energy Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              <!-- Energy Consumption Chart -->
+              <div class="card-glass rounded-xl overflow-hidden">
+                <div class="p-6">
+                  
+                  <div id="energyConsumptionChart" class="w-full h-[280px]"></div>
+                </div>
+              </div>
+              
+              <!-- Usage Distribution Chart -->
+              <div class="card-glass rounded-xl overflow-hidden">
+                <div class="p-6">
+                  <h3 class="text-lg font-bold text-white mb-4">Usage Distribution by Device</h3>
+                  <div id="usageDistributionChart" class="w-full h-[260px]"></div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Smart Energy Insights Section -->
+            <div class="card-glass rounded-xl overflow-hidden mb-8">
+              <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                  <h3 class="text-xl font-bold text-white">Smart Energy Insights</h3>
+                  <div class="flex items-center space-x-2">
+                    <span class="text-xs px-2 py-1 rounded-full bg-indigo-500/20 text-indigo-300">AI Powered</span>
+                    <select id="timeRangeSelector" class="text-xs py-1 px-2 bg-indigo-900/40 text-gray-300 border border-indigo-500/30 rounded-lg">
+                      <option value="week">Past 7 days</option>
+                      <option value="month" selected>Past 30 days</option>
+                      <option value="quarter">Past 90 days</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <!-- Recommendations Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <!-- Energy Saving Recommendation -->
+                  <div class="p-4 bg-gradient-to-br from-indigo-900/30 to-indigo-900/10 rounded-xl border border-indigo-500/10">
+                    <div class="flex items-start">
+                      <div class="p-3 rounded-full bg-indigo-500/20 mr-4">
+                        <i class="fas fa-lightbulb text-indigo-400"></i>
+                      </div>
+                      <div>
+                        <h4 class="font-semibold text-white mb-1">Optimize Lighting Usage</h4>
+                        <p class="text-sm text-gray-400">Switching to LED bulbs could save you approximately $45.30 annually based on your current usage patterns.</p>
+                        <button class="mt-3 text-xs text-indigo-400 hover:text-indigo-300 flex items-center">
+                          <span>View detailed analysis</span>
+                          <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Usage Pattern Insight -->
+                  <div class="p-4 bg-gradient-to-br from-purple-900/30 to-purple-900/10 rounded-xl border border-purple-500/10">
+                    <div class="flex items-start">
+                      <div class="p-3 rounded-full bg-purple-500/20 mr-4">
+                        <i class="fas fa-chart-line text-purple-400"></i>
+                      </div>
+                      <div>
+                        <h4 class="font-semibold text-white mb-1">Peak Usage Detection</h4>
+                        <p class="text-sm text-gray-400">Your energy consumption peaks between 6-8PM. Shifting some usage could reduce your costs by up to 12%.</p>
+                        <button class="mt-3 text-xs text-purple-400 hover:text-purple-300 flex items-center">
+                          <span>See optimization plan</span>
+                          <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Efficiency Comparison -->
+                <div class="relative h-24 bg-gradient-to-r from-red-500/20 via-yellow-500/20 to-green-500/20 rounded-lg overflow-hidden mb-2">
+                  <div class="absolute inset-0 flex items-center">
+                    <div style="width: 74%" class="h-full relative">
+                      <div class="absolute right-0 h-full w-1 bg-white"></div>
+                      <div class="absolute right-0 w-6 h-6 bg-white rounded-full -mt-3 -mr-3 border-4 border-indigo-600 shadow-lg"></div>
+                    </div>
+                  </div>
+                  <!-- Markers -->
+                  <div class="absolute inset-x-0 bottom-1 flex justify-between px-4 text-xs text-gray-400">
+                    <span>High Energy Use</span>
+                    <span>Average</span>
+                    <span>Efficient</span>
+                  </div>
+                </div>
+                <p class="text-xs text-center text-gray-500">You're using 74% less energy than similar households in your area</p>
+              </div>
+            </div>
+          </section>
+          
+
+          
+          <!-- Analytics Section -->
+          <section id="analytics-section" th:class="${activeSection == 'analytics' ? 'dashboard-section' : 'dashboard-section hidden'}">
+            <!-- Advanced Analytics Content -->
+            <div class="card-glass rounded-xl overflow-hidden mb-8">
+              <div class="p-6">
+                <h3 class="text-xl font-bold text-white mb-6">Advanced Energy Analytics</h3>
+                
+                <!-- Analytics Title Spacing -->
+                <div class="mb-6"></div>
+                
+                <!-- Analytics Chart Area -->
+                <div class="h-80 mb-6" id="advancedAnalyticsChart"></div>
+                
+              </div>
+            </div>
+            
+            <!-- Comparison & Benchmarks -->
+            <div class="card-glass rounded-xl overflow-hidden">
+              <div class="p-6">
+                <h3 class="text-xl font-bold text-white mb-6">Usage Comparison</h3>
+                
+                <!-- Comparison Title -->
+                <div class="border-b border-gray-700 mb-6">
+                  <div class="px-4 py-2 text-white">Similar Homes Comparison</div>
+                </div>
+                
+                <!-- Comparison Chart -->
+                <div class="h-60 mb-6" id="comparisonChart"></div>
+                
+                <!-- Efficiency Tips -->
+                <div class="p-4 bg-gradient-to-br from-green-900/20 to-green-900/5 rounded-lg border border-green-500/10">
+                  <div class="flex items-center">
+                    <div class="p-2 rounded-full bg-green-500/20 mr-3">
+                      <i class="fas fa-leaf text-green-400"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-medium text-white text-sm">Efficiency Suggestion</h4>
+                      <p class="text-xs text-gray-400 mt-1 efficiency-tip-text">You're using 15% more energy on weekends than comparable homes. Consider adjusting your thermostat by 2°F to save up to $12.40 monthly.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          <!-- Calculator Section -->
+          <section id="calculator-section" th:class="${activeSection == 'calculator' ? 'dashboard-section' : 'dashboard-section hidden'}">
+            <div class="card-glass rounded-xl overflow-hidden mb-8">
+              <div class="p-6">
+                <h3 class="text-xl font-bold text-white mb-6">Energy Usage Calculator</h3>
+                
+                <!-- Calculator Form -->
+                <form id="calculationForm" class="space-y-4" th:object="${usage}" method="post" th:action="@{/calculate}" onsubmit="return handleCalculationSubmit(event)">
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Appliance Selection -->
+                    <div>
+                      <label for="selectedAppliance" class="block text-gray-400 flex items-center gap-2 text-sm mb-2"> <div id="applianceIcon">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="h-4 w-4"
+                        >
+                          <polygon
+                            points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"
+                          ></polygon>
+                        </svg>
+                      </div>
+                      Appliance</label>
+                      <select
+                      id="selectedAppliance"
+                      name="selectedAppliance"
+                      onchange="updateApplianceDetails(this.value)"
+                      class="w-full p-2.5 rounded-lg input-field text-white focus:outline-none"
+                    >
+                      <option value="" class="bg-gray-900 text-gray-400">
+                        Choose an appliance
+                      </option>
+                      <option
+                        th:each="appliance : ${appliances}"
+                        th:value="${appliance.name}"
+                        th:text="${appliance.name + ' (' + #numbers.formatInteger(appliance.wattage, 1, 'COMMA') + 'W)'}"
+                        class="bg-gray-900 text-white"
+                      ></option>
+                      <option value="custom" class="bg-gray-900 text-white">
+                        Custom Appliance
+                      </option>
+                    </select>
+                    </div>
+
+                    <div
+                    id="customApplianceField"
+                    class="space-y-2"
+                    style="display: none"
+                  >
+                    <label for="customAppliance" class="block text-gray-300"
+                      >Custom Appliance Name</label
+                    >
+                    <input
+                      type="text"
+                      id="customAppliance"
+                      name="customAppliance"
+                      placeholder="Enter appliance name"
+                      class="w-full p-2.5 rounded-lg input-field text-white placeholder:text-gray-500 focus:outline-none"
+                    />
+                  </div>
+                    
+                    <!-- Wattage Input -->
+                    <div>
+                      <label for="wattage" class="block text-gray-400 text-sm mb-2">Wattage (W)</label>
+                      <input type="text" id="wattage" name="wattage" th:field="*{wattage}" class="input-field w-full p-2.5 rounded-lg" placeholder="e.g. 100"
+                      oninput="formatNumber(this)">
+                    </div>
+                    
+                    <!-- Hours Used Input -->
+                    <div>
+                      <label for="hoursUsed" class="block text-gray-400 text-sm mb-2">Usage Time</label>
+                      <div class="flex">
+                        <input type="number" id="hoursUsed" name="hoursUsed" th:field="*{hoursUsed}" class="input-field rounded-l-lg p-2.5 flex-1" placeholder="e.g. 5">
+                        <select id="timeUnit" name="timeUnit" th:field="*{timeUnit}" class="input-field rounded-r-lg p-2.5 border-l-0">
+                          <option value="hours">Hours</option>
+                          <option value="days">Days</option>
+                          <option value="weeks">Weeks</option>
+                          <option value="months">Months</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Cost per kWh -->
+                  <div class="mt-4">
+                    <label for="energyCost" class="block text-gray-400 text-sm mb-2">Energy Cost per kWh ($)</label>
+                    <input type="number" id="energyCost" name="energyCost" step="0.01" class="input-field w-full md:w-1/3 p-2.5 rounded-lg" value="0.12" placeholder="e.g. 0.12">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                  </div>
+                  
+                  <!-- Submit Button -->
+                  <div class="mt-6 flex justify-end">
+                    <button type="submit" id="calculateBtn" class="btn-primary px-6 py-3 rounded-lg">
+                      <i class="fas fa-calculator mr-2"></i> Calculate
+                    </button>
+                    <button type="button" id="calculatingBtn" class="btn-primary px-6 py-3 rounded-lg hidden">
+                      <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Calculating...
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            
+            <!-- Calculation Results -->
+            <div id="calculationResults" class="card-glass rounded-xl overflow-hidden mb-8 hidden">
+              <div class="p-6">
+                <h3 class="text-xl font-bold text-white mb-6">Calculation Results</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                  <!-- kWh Result -->
+                  <div class="bg-indigo-900/10 p-4 rounded-lg border border-indigo-500/10">
+                    <p class="text-xs text-gray-500 mb-1">Energy Consumption</p>
+                    <p id="resultKwh" class="text-2xl font-bold text-white">0 kWh</p>
+                  </div>
+                  
+                  <!-- Cost Result -->
+                  <div class="bg-indigo-900/10 p-4 rounded-lg border border-indigo-500/10">
+                    <p class="text-xs text-gray-500 mb-1">Estimated Cost</p>
+                    <p id="resultCost" class="text-2xl font-bold text-white">$0.00</p>
+                  </div>
+                  
+                  <!-- CO2 Result -->
+                  <div class="bg-indigo-900/10 p-4 rounded-lg border border-indigo-500/10">
+                    <p class="text-xs text-gray-500 mb-1">Carbon Footprint</p>
+                    <p id="resultCO2" class="text-2xl font-bold text-white">0 kg</p>
+                  </div>
+                </div>
+                
+                <!-- Save & Compare -->
+                <div class="flex justify-end space-x-4">
+                  <p class="text-green-400 text-sm mr-auto"><i class="fas fa-check-circle mr-1"></i> Calculation automatically saved</p>
+                  <button type="button" onclick="resetCalculator()" class="btn-primary px-4 py-2 rounded-lg text-sm">
+                    <i class="fas fa-redo mr-1"></i> New Calculation
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          <!-- History Section -->
+          <section id="history-section" th:class="${activeSection == 'history' ? 'dashboard-section' : 'dashboard-section hidden'}">
+            <div class="card-glass rounded-xl overflow-hidden mb-8">
+              <div class="p-6">
+                <div class="flex flex-wrap justify-between items-center mb-6">
+                  <h3 class="text-xl font-bold text-white mb-2 sm:mb-0">Usage History</h3>
+                  <div class="flex flex-wrap gap-2">
+                    <div class="relative">
+                      <input type="text" id="usageSearchInput" placeholder="Search records..." class="input-field pl-9 pr-4 py-2 text-sm rounded-lg w-full sm:w-auto">
+                      <div class="absolute left-3 top-2.5 text-gray-400">
+                        <i class="fas fa-search"></i>
+                      </div>
+                    </div>
+                    <select id="usageFilterSelect" class="input-field px-4 py-2 text-sm rounded-lg w-full sm:w-auto">
+                      <option value="all">All Appliances</option>
+                      <option value="high-usage">High Usage</option>
+                      <option value="low-usage">Low Usage</option>
+                      <option value="this-month">This Month</option>
+                      <option value="last-month">Last Month</option>
+                    </select>
+                    <button id="exportUsageData" onclick="exportUsageData()" class="btn-primary px-4 py-2 text-sm rounded-lg flex items-center">
+                      <i class="fas fa-download mr-2"></i> Export CSV
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Data Analytics Summary -->
+                <div class="card-glass rounded-lg p-4 mb-6 bg-indigo-900/10">
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="flex items-center">
+                      <div class="p-3 rounded-full bg-indigo-500/20 mr-3">
+                        <i class="fas fa-bolt text-indigo-400"></i>
+                      </div>
+                      <div>
+                        <p class="text-xs text-gray-500">Average Daily Usage</p>
+                        <p id="avgDailyUsage" class="text-lg font-semibold text-white" th:text="${#numbers.formatDecimal(totalEnergy / 30, 1, 2) + ' kWh'}">0.00 kWh</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center">
+                      <div class="p-3 rounded-full bg-purple-500/20 mr-3">
+                        <i class="fas fa-calendar-day text-purple-400"></i>
+                      </div>
+                      <div>
+                        <p class="text-xs text-gray-500">Most Active Day</p>
+                        <p id="mostActiveDay" class="text-lg font-semibold text-white">-</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center">
+                      <div class="p-3 rounded-full bg-indigo-500/20 mr-3">
+                        <i class="fas fa-plug text-indigo-400"></i>
+                      </div>
+                      <div>
+                        <p class="text-xs text-gray-500">Top Consuming Device</p>
+                        <p id="topConsumingDevice" class="text-lg font-semibold text-white">-</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- History Table -->
+                <div class="overflow-x-auto rounded-lg border border-gray-700/50">
+                  <table class="min-w-full divide-y divide-gray-700/30">
+                    <thead class="bg-gray-800/50">
+                      <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Appliance</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Usage</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Energy</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Cost</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-700/30 bg-gray-800/20">
+                      <!-- Usage history items -->
+                      <tr th:each="record : ${usageHistory}" th:id="'history-item-' + ${record.id}" class="history-item transition hover:bg-gray-700/20">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white" data-field="applianceName" th:text="${record.applianceName}">TV</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                          <span data-field="wattage" th:text="${record.wattage}">100</span>W for
+                          <span data-field="hoursUsed" th:text="${record.hoursUsed}">5</span>
+                          <span data-field="timeUnit" th:text="${record.timeUnit}">hours</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300" data-field="kWhConsumed" th:text="${#numbers.formatDecimal(record.kWhConsumed, 1, 2)} + ' kWh'">0.5 kWh</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300" data-field="cost" th:text="'$' + ${#numbers.formatDecimal(record.cost, 1, 2)}">$0.06</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300" data-field="recordedAt" th:text="${#temporals.format(record.recordedAt, 'MMM dd, yyyy')}">Jan 15, 2023</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <div class="flex justify-center">
+                            <button onclick="confirmDelete(this.closest('tr').querySelector('.delete-link'))" class="text-red-400 hover:text-red-300">
+                              <i class="fas fa-trash-alt"></i>
+                            </button>
+                            <a href="#" th:onclick="'deleteUsage(' + ${record.id} + '); return false;'" data-id="${record.id}" th:data-href="'/delete/' + ${record.id}" class="delete-link" style="display:none"></a>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+                <!-- Empty State -->
+                <div th:if="${usageHistory.isEmpty()}" class="text-center py-10">
+                  <div class="inline-flex rounded-full bg-indigo-900/20 p-6 mb-4">
+                    <i class="fas fa-clipboard-list text-indigo-400 text-3xl"></i>
+                  </div>
+                  <h3 class="text-lg font-medium text-white mb-2">No usage records yet</h3>
+                  <p class="text-gray-400 mb-4">Start by calculating and saving your appliance usage</p>
+                  <button onclick="showSection('calculator')" class="btn-primary px-4 py-2 rounded-lg">
+                    <i class="fas fa-calculator mr-2"></i> Calculate Usage
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          <!-- Settings Section -->
+          <section id="settings-section" th:class="${activeSection == 'settings' ? 'dashboard-section' : 'dashboard-section hidden'}">
+            <div class="card-glass rounded-xl overflow-hidden mb-8">
+              <div class="p-6">
+                <h3 class="text-xl font-bold text-white mb-6">Account Settings</h3>
+                
+                <!-- Settings Form -->
+                <form id="settingsForm" class="space-y-6">
+                  <!-- Profile Info -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label for="fullName" class="block text-gray-400 text-sm mb-2">Full Name</label>
+                      <input type="text" id="fullName" name="fullName" th:value="${displayName}" class="input-field w-full p-2.5 rounded-lg" placeholder="Your name">
+                    </div>
+                    <div>
+                      <label for="email" class="block text-gray-400 text-sm mb-2">Email Address</label>
+                      <input type="email" id="email" th:value="${#authentication.principal.username}" class="input-field w-full p-2.5 rounded-lg bg-gray-800/50" placeholder="your.email@example.com" readonly>
+                    </div>
+                  </div>
+                  
+                  <!-- Energy Cost Settings -->
+                  <div class="pt-6 border-t border-gray-700/30">
+                    <h4 class="text-lg font-medium text-white mb-4">Energy Cost Settings</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label for="defaultCost" class="block text-gray-400 text-sm mb-2">Default Cost per kWh ($)</label>
+                        <input type="number" id="defaultCost" step="0.01" class="input-field w-full p-2.5 rounded-lg" value="0.12" oninput="syncEnergyCost(this.value)">
+                      </div>
+                      <div>
+                        <label for="currency" class="block text-gray-400 mb-2">Preferred Currency</label>
+                        <input type="hidden" id="currency" name="currency" value="NGN">
+                        <div class="bg-gray-900 text-white px-4 py-2 w-full rounded-lg border border-gray-700">
+                          Nigerian Naira (₦)
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Additional settings can be added here if needed -->
+                  
+                  <!-- Submit Button -->
+                  <div class="pt-6 flex justify-end">
+                    <button type="button" id="saveSettingsBtn" onclick="saveSettings()" class="btn-primary px-6 py-2 rounded-lg">
+                      <i class="fas fa-save mr-2"></i> Save Settings
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </section>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+     
+        
+        
+        
+        <!-- Main Content Grid -->
+        
+
+        
+      </div>
+    </div>
+
+    
+    <!-- Mobile Sidebar - solid background with custom color -->
+    <div id="mobileSidebarContent" class="fixed inset-y-0 left-0 w-64 transform -translate-x-full transition duration-300 ease-in-out z-50 lg:hidden" style="background: linear-gradient(135deg, #1a1c2d 0%, #121420 100%); border-right: 1px solid rgba(99, 102, 241, 0.2);">
+      <!-- Mobile Sidebar Header with Logo -->
+      <div class="p-5 border-b border-indigo-900/20 flex justify-between items-center">
+        <div>
+          <div class="text-xl font-bold text-white mb-1">
+            <span class="gradient-text">PowerTracker</span>
+          </div>
+          <p class="text-xs text-gray-400">Premium Dashboard</p>
+        </div>
+        
+      </div>
+      
+      <!-- User Profile -->
+      <div class="p-4 border-b border-indigo-900/20">
+        <div class="flex items-center">
+          <div class="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center mr-3">
+            <i class="fas fa-user text-indigo-300"></i>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-white" th:text="${#strings.capitalize(displayName)}">User</p>
+            <p class="text-xs text-gray-400">Premium Account</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Navigation Menu -->
+      <div class="py-4">
+        <p class="text-xs text-gray-500 uppercase px-5 mb-2">Main</p>
+        <a href="/dashboard" th:class="${activeSection == 'dashboard' ? 'flex items-center px-5 py-3 text-gray-200 transition-colors hover:bg-indigo-500/10 border-l-2 border-indigo-500' : 'flex items-center px-5 py-3 text-gray-400 transition-colors hover:bg-indigo-500/10 hover:text-gray-200'}">
+          <i th:class="${activeSection == 'dashboard' ? 'fas fa-tachometer-alt w-5 text-indigo-400' : 'fas fa-tachometer-alt w-5 text-gray-500'}"></i>
+          <span class="ml-3">Dashboard</span>
+        </a>
+       
+        <a href="/analytics" th:class="${activeSection == 'analytics' ? 'flex items-center px-5 py-3 text-gray-200 transition-colors hover:bg-indigo-500/10 border-l-2 border-indigo-500' : 'flex items-center px-5 py-3 text-gray-400 transition-colors hover:bg-indigo-500/10 hover:text-gray-200'}">
+          <i th:class="${activeSection == 'analytics' ? 'fas fa-chart-line w-5 text-indigo-400' : 'fas fa-chart-line w-5 text-gray-500'}"></i>
+          <span class="ml-3">Analytics</span>
+        </a>
+        <a href="/usage-calculator" th:class="${activeSection == 'calculator' ? 'flex items-center px-5 py-3 text-gray-200 transition-colors hover:bg-indigo-500/10 border-l-2 border-indigo-500' : 'flex items-center px-5 py-3 text-gray-400 transition-colors hover:bg-indigo-500/10 hover:text-gray-200'}">
+          <i th:class="${activeSection == 'calculator' ? 'fas fa-calculator w-5 text-indigo-400' : 'fas fa-calculator w-5 text-gray-500'}"></i>
+          <span class="ml-3">Usage Calculator</span>
+        </a>
+        
+        <p class="text-xs text-gray-500 uppercase px-5 mb-2 mt-6">Management</p>
+        <a href="/usage-history" th:class="${activeSection == 'history' ? 'flex items-center px-5 py-3 text-gray-200 transition-colors hover:bg-indigo-500/10 border-l-2 border-indigo-500' : 'flex items-center px-5 py-3 text-gray-400 transition-colors hover:bg-indigo-500/10 hover:text-gray-200'}">
+          <i th:class="${activeSection == 'history' ? 'fas fa-history w-5 text-indigo-400' : 'fas fa-history w-5 text-gray-500'}"></i>
+          <span class="ml-3">Usage History</span>
+        </a>
+        <a href="/settings" th:class="${activeSection == 'settings' ? 'flex items-center px-5 py-3 text-gray-200 transition-colors hover:bg-indigo-500/10 border-l-2 border-indigo-500' : 'flex items-center px-5 py-3 text-gray-400 transition-colors hover:bg-indigo-500/10 hover:text-gray-200'}">
+          <i th:class="${activeSection == 'settings' ? 'fas fa-cog w-5 text-indigo-400' : 'fas fa-cog w-5 text-gray-500'}"></i>
+          <span class="ml-3">Settings</span>
+        </a>
+      </div>
+    </div>
+    
+    <script>
+      // Mobile Sidebar Toggle Functions
+      function toggleMobileSidebar() {
+        const sidebar = document.getElementById('mobileSidebarContent');
+        const hamburgerIcon = document.getElementById('hamburgerIcon');
+        
+        if (sidebar.classList.contains('-translate-x-full')) {
+          // Open sidebar
+          sidebar.classList.remove('-translate-x-full');
+          // Change hamburger to X
+          hamburgerIcon.classList.remove('fa-bars');
+          hamburgerIcon.classList.add('fa-times');
+        } else {
+          // Close sidebar
+          sidebar.classList.add('-translate-x-full');
+          // Change X back to hamburger
+          hamburgerIcon.classList.remove('fa-times');
+          hamburgerIcon.classList.add('fa-bars');
+        }
+      }
+      
+      // User Dropdown Toggle
+      function toggleUserDropdown() {
+        const dropdownMenu = document.getElementById('userDropdownMenu');
+        dropdownMenu.classList.toggle('hidden');
+      }
+      
+      // Function to handle calculation form submission
+      function handleCalculationSubmit(event) {
+        event.preventDefault();
+        const form = document.getElementById("calculationForm");
+        const resultsDiv = document.getElementById("calculationResults");
+        const calculateBtn = document.getElementById("calculateBtn");
+        const calculatingBtn = document.getElementById("calculatingBtn");
+        
+        // Check if in edit mode
+        const isEditMode = form.getAttribute('data-edit-mode') === 'true';
+        
+        // Show loading state
+        if (calculateBtn && calculatingBtn) {
+          calculateBtn.classList.add("hidden");
+          calculatingBtn.classList.remove("hidden");
+        }
+        
+        // Get form values
+        const selectedAppliance = document.getElementById("selectedAppliance").value;
+        const customAppliance = document.getElementById("customAppliance")?.value || "";
+        const wattage = document.getElementById("wattage").value.replace(/,/g, "");
+        const hoursUsed = document.getElementById("hoursUsed").value;
+        const timeUnit = document.getElementById("timeUnit").value;
+        const energyCost = document.getElementById("energyCost").value.replace(/,/g, "");
+        
+        // Validate form
+        if (selectedAppliance === "" && selectedAppliance !== "custom") {
+          alert("Please select an appliance");
+          resetLoadingState();
+          return false;
+        }
+        
+        if (selectedAppliance === "custom" && customAppliance === "") {
+          alert("Please enter a custom appliance name");
+          resetLoadingState();
+          return false;
+        }
+        
+        if (!wattage || isNaN(wattage) || wattage <= 0) {
+          alert("Please enter a valid wattage");
+          resetLoadingState();
+          return false;
+        }
+        
+        if (!hoursUsed || isNaN(hoursUsed) || hoursUsed <= 0) {
+          alert("Please enter valid usage time");
+          resetLoadingState();
+          return false;
+        }
+        
+        // Calculate kWh
+        let hours = parseFloat(hoursUsed);
+        switch (timeUnit) {
+          case "days": hours *= 24; break;
+          case "weeks": hours *= 24 * 7; break;
+          case "months": hours *= 24 * 30; break;
+        }
+        
+        const kWh = (parseFloat(wattage) * hours) / 1000;
+        const cost = kWh * parseFloat(energyCost);
+        const co2 = kWh * 0.85; // Approximate CO2 emissions in kg
+        
+        // Create FormData for submission
+        const formData = new FormData(form);
+        
+        // Simulate calculation and server processing with a short delay
+        setTimeout(() => {
+          // First update the UI with the calculation results
+          document.getElementById("resultKwh").textContent = kWh.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " kWh";
+          
+          // Use the currently selected currency symbol
+          const currencySymbol = document.getElementById("currency")?.value === "NGN" ? "₦" : "$";
+          document.getElementById("resultCost").textContent = currencySymbol + cost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+          document.getElementById("resultCO2").textContent = co2.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " kg";
+          
+          // Now show results AND reset loading state together
+          resultsDiv.classList.remove("hidden");
+          resetLoadingState();
+          
+          // Automatically save calculation and update charts
+          const applianceName = selectedAppliance === "custom" ? customAppliance : selectedAppliance;
+          const usageData = {
+            applianceName: applianceName,
+            wattage: parseFloat(wattage),
+            hoursUsed: parseFloat(hoursUsed),
+            timeUnit: timeUnit,
+            energyCost: parseFloat(energyCost)
+          };
+          
+          // First, update charts immediately with new calculation
+          if (typeof updateChartsWithNewCalculation === 'function') {
+            updateChartsWithNewCalculation(usageData);
+          }
+          
+          // Then save to server
+          fetch(form.action, {
+            method: "POST",
+            body: formData,
+            headers: {
+              "X-Requested-With": "XMLHttpRequest",
+              ...(csrfHeader && csrfToken ? {[csrfHeader]: csrfToken} : {})
+            }
+          }).then(response => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.text();
+          }).then(() => {
+            // Refresh dashboard data after server save
+            if (typeof fetchDashboardData === 'function') {
+              fetchDashboardData();
+            }
+          }).catch(error => {
+            console.error("There was a problem with the form submission:", error);
+          });
+          
+          // If in edit mode, reset the form
+          if (isEditMode) {
+            form.removeAttribute('data-edit-mode');
+            if (calculateBtn) {
+              calculateBtn.innerHTML = '<i class="fas fa-calculator mr-2"></i> Calculate';
+            }
+            
+            // Remove the edit record ID field
+            const recordIdField = document.getElementById('editRecordId');
+            if (recordIdField) {
+              recordIdField.remove();
+            }
+            
+            // Refresh the history view
+            setTimeout(() => {
+              analyzeUsageHistory();
+            }, 500);
+          }
+        }, 1000); // Add a 1 second calculation delay to show loading state
+        
+        return false; // Prevent normal form submission
+      }
+      
+      // Reset loading state
+      function resetLoadingState() {
+        const calculateBtn = document.getElementById("calculateBtn");
+        const calculatingBtn = document.getElementById("calculatingBtn");
+        if (calculateBtn && calculatingBtn) {
+          calculateBtn.classList.remove("hidden");
+          calculatingBtn.classList.add("hidden");
+        }
+      }
+      
+      // Reset calculator to start a new calculation
+      function resetCalculator() {
+        // Hide results section
+        const resultsDiv = document.getElementById("calculationResults");
+        if (resultsDiv) {
+          resultsDiv.classList.add("hidden");
+        }
+        
+        // Reset form fields
+        const form = document.getElementById("calculationForm");
+        if (form) {
+          form.reset();
+          
+          // Reset to non-edit mode
+          form.removeAttribute('data-edit-mode');
+          
+          // Reset button text
+          const calculateBtn = document.getElementById("calculateBtn");
+          if (calculateBtn) {
+            calculateBtn.innerHTML = '<i class="fas fa-calculator mr-2"></i> Calculate';
+          }
+          
+          // Remove the edit record ID field if it exists
+          const recordIdField = document.getElementById('editRecordId');
+          if (recordIdField) {
+            recordIdField.remove();
+          }
+          
+          // Hide custom appliance field
+          const customApplianceField = document.getElementById("customApplianceField");
+          if (customApplianceField) {
+            customApplianceField.style.display = "none";
+          }
+          
+          // Reset appliance icon
+          const applianceIcon = document.getElementById("applianceIcon");
+          if (applianceIcon) {
+            applianceIcon.innerHTML = applianceIcons["custom"];
+          }
+        }
+      }
+      
+      // Function to save user settings
+      function saveSettings() {
+        const saveBtn = document.getElementById('saveSettingsBtn');
+        const fullName = document.getElementById('fullName').value;
+        const defaultCost = document.getElementById('defaultCost').value;
+        const currency = 'NGN'; // Always use NGN
+        
+        // Show loading state
+        const originalText = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
+        saveBtn.disabled = true;
+        
+        // Save the cost value for this specific currency
+        saveCostForCurrency(currency, defaultCost);
+        
+        // Create the request data
+        const formData = new FormData();
+        formData.append('fullName', fullName);
+        formData.append('defaultCost', defaultCost);
+        formData.append('currency', currency);
+        
+        // Add CSRF token
+        formData.append('_csrf', csrfToken);
+        
+        // Send request to update user settings
+        fetch('/api/dashboard/saveSettings', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            [csrfHeader]: csrfToken
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to save settings');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Show success message
+          saveBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Saved!';
+          
+          // Update the displayed name in UI
+          const displayNameElements = document.querySelectorAll('.user-display-name');
+          displayNameElements.forEach(element => {
+            element.textContent = fullName;
+          });
+          
+          // Update currency across the application and sync the energyCost with defaultCost
+          updateCurrency('NGN');
+          syncEnergyCost(defaultCost);
+          
+          // Reset button after 2 seconds
+          setTimeout(() => {
+            saveBtn.innerHTML = originalText;
+            saveBtn.disabled = false;
+          }, 2000);
+        })
+        .catch(error => {
+          console.error('Error saving settings:', error);
+          saveBtn.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i> Error';
+          alert('Failed to save settings. Please try again.');
+          
+          // Reset button after 2 seconds
+          setTimeout(() => {
+            saveBtn.innerHTML = originalText;
+            saveBtn.disabled = false;
+          }, 2000);
+        });
+      }
+      
+      // Function to save cost value for specific currency
+      function saveCostForCurrency(currency, cost) {
+        // Get existing saved costs or initialize empty object
+        const savedCosts = JSON.parse(localStorage.getItem('currencyCosts') || '{}');
+        
+        // Map currency codes to storage keys
+        const currencyKey = 'NGN';
+        
+        // Save the cost for this currency
+        savedCosts[currencyKey] = parseFloat(cost);
+        
+        // Store back to localStorage
+        localStorage.setItem('currencyCosts', JSON.stringify(savedCosts));
+      }
+      
+      // Synchronize Energy Cost with Default Cost when changed
+      function syncEnergyCost(value) {
+        const energyCostInput = document.getElementById('energyCost');
+        if (energyCostInput && !isNaN(value)) {
+          energyCostInput.value = parseFloat(value).toFixed(2);
+        }
+      }
+      
+      // Set default cost for Naira
+      function updateDefaultCost() {
+        const defaultCostInput = document.getElementById('defaultCost');
+        const energyCostInput = document.getElementById('energyCost');
+        
+        if (!defaultCostInput) return;
+        
+        let costValue = 43.56; // Nigerian Naira value
+        
+        // Update default cost in settings
+        defaultCostInput.value = costValue.toFixed(2);
+        
+        // Also update the calculator's energy cost input if it exists
+        if (energyCostInput) {
+          energyCostInput.value = costValue.toFixed(2);
+        }
+        
+        // Update currency displays
+        updateCurrency('NGN');
+      }
+      
+      // Update the analytics chart based on selected time range
+      function updateAnalyticsChart(timeRange, buttonElement) {
+        // Update button styles
+        document.querySelectorAll('.analytics-time-btn').forEach(btn => {
+          btn.classList.remove('bg-indigo-500', 'text-white');
+          btn.classList.add('bg-indigo-500/20', 'text-indigo-300');
+        });
+        
+        // Highlight selected button
+        buttonElement.classList.remove('bg-indigo-500/20', 'text-indigo-300');
+        buttonElement.classList.add('bg-indigo-500', 'text-white');
+        
+        // Generate data based on time range
+        let categories = [];
+        let data = [];
+        
+        switch(timeRange) {
+          case 'day':
+            categories = ['12am', '3am', '6am', '9am', '12pm', '3pm', '6pm', '9pm'];
+            data = [0.5, 0.3, 0.7, 2.1, 1.2, 1.7, 3.4, 2.8];
+            break;
+          case 'week':
+            categories = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            data = [4.2, 5.1, 3.8, 4.5, 6.3, 4.9, 3.2];
+            break;
+          case 'month':
+            categories = Array.from({length: 30}, (_, i) => `${i+1}`);
+            data = Array.from({length: 30}, () => Math.random() * 5 + 1);
+            break;
+          case 'year':
+            categories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            data = [85, 72, 78, 75, 77, 90, 102, 95, 92, 100, 110, 90];
+            break;
+        }
+        
+        // Update the chart if it exists
+        const chartElement = document.getElementById('advancedAnalyticsChart');
+        if (!chartElement) return;
+        
+        // Create a new chart configuration
+        const analyticsOptions = {
+          series: [{
+            name: 'Energy Usage',
+            data: data
+          }],
+          chart: {
+            height: 320,
+            type: 'area',
+            toolbar: {
+              show: true,
+              tools: {
+                download: true,
+                selection: false,
+                zoom: true,
+                zoomin: true,
+                zoomout: true,
+                pan: true,
+                reset: true
+              }
+            },
+            background: 'transparent'
+          },
+          colors: ['#8b5cf6'],
+          dataLabels: {
+            enabled: false,
+          },
+          stroke: {
+            curve: 'smooth',
+            width: 3,
+          },
+          fill: {
+            type: 'gradient',
+            gradient: {
+              shade: 'dark',
+              gradientToColors: ['#6366f1'],
+              shadeIntensity: 1,
+              type: 'vertical',
+              opacityFrom: 0.7,
+              opacityTo: 0.2
+            },
+          },
+          xaxis: {
+            categories: categories,
+            labels: {
+              style: {
+                colors: '#94a3b8'
+              }
+            }
+          },
+          yaxis: {
+            labels: {
+              style: {
+                colors: '#94a3b8'
+              },
+              formatter: function (val) {
+                return val.toFixed(1) + ' kWh';
+              }
+            }
+          },
+          grid: {
+            borderColor: '#1e293b',
+            strokeDashArray: 5,
+            position: 'back'
+          },
+          tooltip: {
+            theme: 'dark',
+            y: {
+              formatter: function(val) {
+                // Update to use 1 decimal place only
+                return val.toFixed(1) + ' kWh';
+              }
+            }
+          }
+        };
+        
+        // Update date range in the header
+        const dateRangeElement = document.querySelector('.analytics-date-range');
+        if (dateRangeElement) {
+          let dateText = 'May 1 - May 7, 2025';
+          switch(timeRange) {
+            case 'day': dateText = 'May 7, 2025'; break;
+            case 'week': dateText = 'May 1 - May 7, 2025'; break;
+            case 'month': dateText = 'May 2025'; break;
+            case 'year': dateText = '2025'; break;
+          }
+          dateRangeElement.textContent = dateText;
+        }
+        
+        // Handle updating stats based on time range
+        updateAnalyticsStats(timeRange);
+        
+        // Clear the chart and create a new one
+        chartElement.innerHTML = '';
+        const analyticsChart = new ApexCharts(chartElement, analyticsOptions);
+        analyticsChart.render();
+      }
+      
+      // Update comparison chart (only for similar homes comparison)
+      function updateComparisonChart() {
+        const comparisonType = 'similar';
+        
+        const chartElement = document.getElementById('comparisonChart');
+        if (!chartElement) return;
+        
+        // Define chart data based on comparison type
+        let series = [];
+        let categories = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        
+        switch(comparisonType) {
+          case 'similar':
+            series = [
+              {
+                name: 'Your Usage',
+                data: [4.2, 5.1, 3.8, 4.5, 6.3, 4.9, 3.2]
+              },
+              {
+                name: 'Similar Homes',
+                data: [5.1, 4.7, 4.3, 5.0, 5.8, 4.2, 3.8]
+              }
+            ];
+            break;
+          case 'previous':
+            series = [
+              {
+                name: 'Current Period',
+                data: [4.2, 5.1, 3.8, 4.5, 6.3, 4.9, 3.2]
+              },
+              {
+                name: 'Previous Period',
+                data: [3.9, 4.8, 3.5, 5.2, 5.9, 4.5, 3.0]
+              }
+            ];
+            break;
+        }
+        
+        // Check if we already have a global comparisonChart instance from dashboard.js
+        if (window.comparisonChart) {
+          // If it exists, just update the series data instead of creating a new chart
+          window.comparisonChart.updateSeries(series);
+        } else {
+          // If not, create a new chart (fallback)
+          const comparisonOptions = {
+            series: series,
+            chart: {
+              height: 240,
+              type: 'bar',
+              toolbar: {
+                show: false
+              },
+              background: 'transparent'
+            },
+            plotOptions: {
+              bar: {
+                borderRadius: 4,
+                columnWidth: '60%',
+              },
+            },
+            colors: ['#8b5cf6', '#6366f1'],
+            dataLabels: {
+              enabled: false
+            },
+            legend: {
+              position: 'top',
+              horizontalAlign: 'right',
+              labels: {
+                colors: '#94a3b8'
+              }
+            },
+            xaxis: {
+              categories: categories,
+              labels: {
+                style: {
+                  colors: '#94a3b8'
+                }
+              }
+            },
+            yaxis: {
+              title: {
+                text: 'Energy (kWh)',
+                style: {
+                  color: '#94a3b8'
+                }
+              },
+              labels: {
+                style: {
+                  colors: '#94a3b8'
+                },
+                formatter: function(val) {
+                  return val.toFixed(1) + ' kWh';
+                }
+              }
+            },
+            grid: {
+              borderColor: '#1e293b',
+              strokeDashArray: 5,
+              position: 'back'
+            },
+            tooltip: {
+              theme: 'dark',
+              y: {
+                formatter: function(val) {
+                  return val.toFixed(1) + ' kWh';
+                }
+              }
+            }
+          };
+          
+          // Only as a fallback, we create a new chart
+          chartElement.innerHTML = '';
+          window.comparisonChart = new ApexCharts(chartElement, comparisonOptions);
+          window.comparisonChart.render();
+        }
+        
+        // Update efficiency tip for similar homes comparison
+        updateEfficiencyTip();
+      }
+      
+      // Update efficiency tip for similar homes comparison
+      function updateEfficiencyTip() {
+        const tipElement = document.querySelector('.efficiency-tip-text');
+        if (!tipElement) return;
+        
+        const tipText = "You're using 15% more energy on weekends than comparable homes. Consider adjusting your thermostat by 2°F to save up to ₦12.40 monthly.";
+        tipElement.textContent = tipText;
+      }
+      
+      // Update analytics stats based on the selected time range
+      function updateAnalyticsStats(timeRange) {
+        const avgUsageElement = document.getElementById('avgUsage');
+        const peakUsageElement = document.getElementById('peakUsage');
+        const costPerDayElement = document.getElementById('costPerDay');
+        const carbonImpactElement = document.getElementById('carbonImpact');
+        
+        // Get currency symbol (always Naira)
+        const currencySymbol = '₦';
+        
+        // Get real data based on usage history
+        const usageHistory = document.querySelectorAll('.history-item');
+        
+        // Default values in case there's no history data
+        let avgUsage = 0;
+        let peakUsage = 0;
+        let totalCost = 0;
+        let totalKwh = 0;
+        
+        // Process usage history if available
+        if (usageHistory && usageHistory.length > 0) {
+          let totalRecords = usageHistory.length;
+          
+          // Calculate total kWh and find peak usage
+          usageHistory.forEach(item => {
+            const kwhText = item.querySelector('[data-field="kWhConsumed"]')?.textContent;
+            const kwh = parseFloat(kwhText);
+            
+            if (!isNaN(kwh)) {
+              totalKwh += kwh;
+              if (kwh > peakUsage) peakUsage = kwh;
+            }
+            
+            const costText = item.querySelector('[data-field="cost"]')?.textContent;
+            const cost = parseFloat(costText.replace('$', '').replace('₦', ''));
+            if (!isNaN(cost)) {
+              totalCost += cost;
+            }
+          });
+          
+          // Calculate average usage
+          avgUsage = totalKwh / totalRecords;
+          
+          // Calculate carbon impact (0.5kg per kWh)
+          const carbonImpact = totalKwh * 0.5;
+          
+          // Calculate daily cost
+          const costPerDay = totalCost / 30; // Assuming a month of data
+          
+          // Format values
+          const formattedAvg = avgUsage.toFixed(1);
+          const formattedPeak = peakUsage.toFixed(1);
+          const formattedCost = costPerDay.toFixed(2);
+          const formattedCarbon = carbonImpact.toFixed(1);
+          
+          // Update the UI with real calculated values
+          if (avgUsageElement) avgUsageElement.textContent = formattedAvg + ' kWh';
+          if (peakUsageElement) peakUsageElement.textContent = formattedPeak + ' kWh';
+          if (costPerDayElement) costPerDayElement.textContent = currencySymbol + formattedCost;
+          if (carbonImpactElement) carbonImpactElement.textContent = formattedCarbon + ' kg';
+        } else {
+          // Fallback to reasonable defaults if no data is available
+          if (avgUsageElement) avgUsageElement.textContent = '0.0 kWh';
+          if (peakUsageElement) peakUsageElement.textContent = '0.0 kWh';
+          if (costPerDayElement) costPerDayElement.textContent = currencySymbol + '0.00';
+          if (carbonImpactElement) carbonImpactElement.textContent = '0.0 kg';
+        }
+      }
+      
+      function updateCurrency(currencyCode) {
+        // Store the currency preference
+        localStorage.setItem('preferredCurrency', currencyCode);
+        
+        // Get the currency symbol
+        let symbol = '$';
+        switch(currencyCode) {
+          case 'NGN': symbol = '₦'; break;
+          case 'EUR': symbol = '€'; break;
+          case 'GBP': symbol = '£'; break;
+          default: symbol = '$'; break;
+        }
+        
+        // Update all currency displays in the page
+        document.querySelectorAll('[data-field="cost"]').forEach(element => {
+          // Extract the numeric value
+          const value = parseFloat(element.textContent.replace(/[^\d.]/g, ''));
+          if (!isNaN(value)) {
+            // Replace with new currency symbol and formatted number
+            element.textContent = symbol + value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+          }
+        });
+        
+        // Update dashboard total cost display
+        const totalCostElements = document.querySelectorAll('.cost-display');
+        totalCostElements.forEach(element => {
+          const value = parseFloat(element.textContent.replace(/[^\d.]/g, ''));
+          if (!isNaN(value)) {
+            element.textContent = value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+          }
+        });
+        
+        // Update any other specific cost displays like total cost summary
+        const totalCostDisplay = document.querySelector('.total-cost-value');
+        if (totalCostDisplay) {
+          const value = parseFloat(totalCostDisplay.textContent.replace(/[^\d.]/g, ''));
+          if (!isNaN(value)) {
+            totalCostDisplay.textContent = symbol + value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+          }
+        }
+        
+        // Update energy cost input placeholder and label
+        const energyCostInput = document.getElementById('energyCost');
+        if (energyCostInput) {
+          energyCostInput.placeholder = `e.g. 0.12 ${symbol}/kWh`;
+          
+          // Update the energy cost label to show the current currency symbol
+          const energyCostLabel = document.querySelector('label[for="energyCost"]');
+          if (energyCostLabel) {
+            energyCostLabel.textContent = `Energy Cost per kWh (${symbol})`;
+          }
+        }
+        
+        // Update calculation results if visible
+        const resultCost = document.getElementById('resultCost');
+        if (resultCost && !resultCost.closest('#calculationResults').classList.contains('hidden')) {
+          const value = parseFloat(resultCost.textContent.replace(/[^\d.]/g, ''));
+          if (!isNaN(value)) {
+            resultCost.textContent = symbol + value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+          }
+        }
+        
+        // Apply to all elements with currency symbol
+        document.querySelectorAll('.currency-symbol').forEach(element => {
+          element.textContent = symbol;
+        });
+      }
+      
+      // Function to confirm deletion
+      function confirmDelete(deleteLink) {
+        if (!deleteLink) return;
+        
+        if (confirm('Are you sure you want to delete this record? This action cannot be undone.')) {
+          // Extract the ID and URL from the delete link
+          const id = deleteLink.getAttribute('data-id');
+          const url = deleteLink.getAttribute('data-href');
+          
+          // Show loading indicator
+          const row = deleteLink.closest('tr');
+          if (row) {
+            row.style.opacity = '0.5';
+          }
+          
+          // Send delete request with CSRF token
+          fetch(url, {
+            method: 'POST',
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest',
+              [csrfHeader]: csrfToken
+            }
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Failed to delete record');
+            }
+            // Remove the row on success
+            if (row) {
+              row.remove();
+            }
+            // Update counter
+            const recordCount = document.getElementById('recordCount');
+            if (recordCount) {
+              const currentCount = parseInt(recordCount.textContent) || 0;
+              if (currentCount > 0) {
+                recordCount.textContent = (currentCount - 1).toLocaleString();
+              }
+            }
+          })
+          .catch(error => {
+            console.error('Error deleting record:', error);
+            alert('Error deleting record. Please try again.');
+            // Reset opacity
+            if (row) {
+              row.style.opacity = '1';
+            }
+          });
+        }
+      }
+      
+      // Function to edit a usage record
+      // The editUsageRecord function has been removed as per requirements
+      
+      // Function to update default cost based on selected currency
+      function updateDefaultCost(currencyCode) {
+        const defaultCostInput = document.getElementById('defaultCost');
+        if (!defaultCostInput) return;
+        
+        // Update the default cost label with the currency symbol
+        const defaultCostLabel = document.querySelector('label[for="defaultCost"]');
+        const energyCostLabel = document.querySelector('label[for="energyCost"]');
+        let symbol = '$';
+        let defaultValue = 0.12; // Default in USD
+        
+        // Get stored costs for specific currencies if they exist
+        const savedCurrencyCosts = JSON.parse(localStorage.getItem('currencyCosts') || '{}');
+        
+        switch(currencyCode) {
+          case 'NGN': 
+            symbol = '₦'; 
+            defaultValue = savedCurrencyCosts.NGN || 43.56; // Use saved value or default
+            break;
+          case 'EUR': 
+            symbol = '€'; 
+            defaultValue = savedCurrencyCosts.EUR || 0.11; // Use saved value or default
+            break;
+          case 'GBP': 
+            symbol = '£'; 
+            defaultValue = savedCurrencyCosts.GBP || 0.09; // Use saved value or default
+            break;
+          default: 
+            symbol = '$'; 
+            defaultValue = savedCurrencyCosts.USD || 0.12; // Use saved value or default
+            break;
+        }
+        
+        // Update the labels
+        if (defaultCostLabel) {
+          defaultCostLabel.textContent = `Default Cost per kWh (${symbol})`;
+        }
+        
+        if (energyCostLabel) {
+          energyCostLabel.textContent = `Energy Cost per kWh (${symbol})`;
+        }
+        
+        // Always update the default cost value when currency changes
+        defaultCostInput.value = defaultValue.toFixed(2);
+        
+        // Also sync with the energy cost input to ensure consistency
+        syncEnergyCost(defaultValue);
+        
+        // Also update currency throughout the application
+        updateCurrency(currencyCode);
+      }
+      
+      // Initialize currency from local storage on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        const savedCurrency = localStorage.getItem('preferredCurrency') || 'NGN';
+        const currencySelect = document.getElementById('currency');
+        if (currencySelect) {
+          currencySelect.value = savedCurrency;
+        }
+        
+        // Update both currency displays and default cost
+        updateDefaultCost(savedCurrency);
+        
+        // Track default cost changes and save per currency
+        const defaultCostInput = document.getElementById('defaultCost');
+        if (defaultCostInput) {
+          defaultCostInput.addEventListener('input', function() {
+            // Save the new value for this currency
+            const currentCurrency = document.getElementById('currency').value;
+            saveCostForCurrency(currentCurrency, this.value);
+            
+            // Sync energy cost with default cost
+            syncEnergyCost(this.value);
+          });
+        }
+        
+        // Analyze usage history data
+        analyzeUsageHistory();
+        
+        // Format all numbers with commas
+        formatAllNumbers();
+      });
+      
+      // Format all numbers on the page with commas
+      function formatAllNumbers() {
+        // Format all elements with the formatted-number class
+        document.querySelectorAll('.formatted-number').forEach(element => {
+          const value = parseFloat(element.textContent.replace(/[^\d.]/g, ''));
+          if (!isNaN(value)) {
+            element.textContent = value.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            });
+          }
+        });
+        
+        // Format record count
+        const recordCount = document.getElementById('recordCount');
+        if (recordCount) {
+          const value = parseInt(recordCount.textContent.replace(/[^\d]/g, ''));
+          if (!isNaN(value)) {
+            recordCount.textContent = value.toLocaleString();
+          }
+        }
+        
+        // Format all data-field='kWhConsumed' elements
+        document.querySelectorAll('[data-field="kWhConsumed"]').forEach(element => {
+          const text = element.textContent;
+          const match = text.match(/(\d+(?:\.\d+)?)/); // Extract the number
+          if (match) {
+            const value = parseFloat(match[0]);
+            if (!isNaN(value)) {
+              element.textContent = text.replace(match[0], value.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              }));
+            }
+          }
+        });
+        
+        // Format all data-field='wattage' elements
+        document.querySelectorAll('[data-field="wattage"]').forEach(element => {
+          const text = element.textContent;
+          const match = text.match(/(\d+)/);
+          if (match) {
+            const value = parseInt(match[0]);
+            if (!isNaN(value)) {
+              element.textContent = text.replace(match[0], value.toLocaleString());
+            }
+          }
+        });
+      }
+      
+      // Analyze usage history data to populate dynamic stats
+      function analyzeUsageHistory() {
+        const historyRows = document.querySelectorAll('.history-item');
+        if (!historyRows || historyRows.length === 0) return;
+        
+        // Count appliance occurrences and their energy consumption
+        const deviceStats = {};
+        const dayStats = {
+          'Monday': 0, 'Tuesday': 0, 'Wednesday': 0, 'Thursday': 0, 'Friday': 0, 'Saturday': 0, 'Sunday': 0
+        };
+        
+        // Parse dates to determine day of week
+        historyRows.forEach(row => {
+          // Get appliance name
+          const applianceName = row.querySelector('[data-field="applianceName"]').textContent;
+          
+          // Get energy consumption
+          const energyText = row.querySelector('[data-field="kWhConsumed"]').textContent;
+          const energy = parseFloat(energyText);
+          
+          // Get date
+          const dateText = row.querySelector('[data-field="recordedAt"]').textContent;
+          const date = new Date(dateText);
+          const dayOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()];
+          
+          // Update device stats
+          if (!deviceStats[applianceName]) {
+            deviceStats[applianceName] = { count: 0, totalEnergy: 0 };
+          }
+          deviceStats[applianceName].count++;
+          deviceStats[applianceName].totalEnergy += energy;
+          
+          // Update day stats
+          dayStats[dayOfWeek] += energy;
+        });
+        
+        // Find the most active day
+        let mostActiveDay = 'Monday';
+        let maxEnergy = 0;
+        for (const day in dayStats) {
+          if (dayStats[day] > maxEnergy) {
+            maxEnergy = dayStats[day];
+            mostActiveDay = day;
+          }
+        }
+        
+        // Find the top consuming device
+        let topDevice = '';
+        let topEnergy = 0;
+        for (const device in deviceStats) {
+          if (deviceStats[device].totalEnergy > topEnergy) {
+            topEnergy = deviceStats[device].totalEnergy;
+            topDevice = device;
+          }
+        }
+        
+        // Update the UI
+        const mostActiveDayElement = document.getElementById('mostActiveDay');
+        if (mostActiveDayElement) {
+          mostActiveDayElement.textContent = mostActiveDay;
+        }
+        
+        const topConsumingDeviceElement = document.getElementById('topConsumingDevice');
+        if (topConsumingDeviceElement) {
+          topConsumingDeviceElement.textContent = topDevice;
+        }
+      }
+      
+      // Define appliance icons
+      const applianceIcons = {
+        Refrigerator: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M5 6a7 7 0 1 1 14 0v10a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V6Z"></path><path d="M15 6v2"></path><path d="M9 6v2"></path><path d="M15 16v2"></path><path d="M9 16v2"></path><path d="M9 10h6"></path><path d="M5 14h14"></path></svg>`,
+
+        "Air Conditioner": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><rect x="2" y="6" width="20" height="12" rx="2"></rect><line x1="2" y1="12" x2="22" y2="12"></line><line x1="7" y1="12" x2="7" y2="18"></line><line x1="17" y1="12" x2="17" y2="18"></line><line x1="12" y1="6" x2="12" y2="12"></line></svg>`,
+
+        Television: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>`,
+
+        "Washing Machine": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>`,
+
+        "Microwave Oven": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M6 8h.01"></path><circle cx="14" cy="12" r="4"></circle></svg>`,
+
+        "Electric Iron": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="m8 3 4 3 4-3"></path><path d="M7 8h10a4 4 0 0 1 4 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-1a4 4 0 0 1 4-4Z"></path><path d="M17 17v3"></path><path d="M7 17v3"></path></svg>`,
+
+        "Desktop Computer": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>`,
+
+        Laptop: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"></path></svg>`,
+
+        "Light Bulb (LED)": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path></svg>`,
+
+        "Light Bulb (Incandescent)": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8A6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path></svg>`,
+
+        "Electric Fan": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M12 6a2 2 0 0 0-2 2c0 1 .6 1.5 1 2 .4.5 1 1 1 2a2 2 0 0 1-4 0c0-1 .6-1.5 1-2 .4-.5 1-1 1-2a2 2 0 0 0-2-2a2 2 0 1 0 0 4c1 0 1.5-.6 2-1 .5-.4 1-1 1-1a2 2 0 0 1 0 4 2 2 0 0 0 0-4c-1 0-1.5.6-2 1-.5.4-1 1-2 1a2 2 0 0 1-2-2c0-1 .6-1.5 1-2 .4-.5 1-1 1-2a2 2 0 0 1 4 0c0 1-.6 1.5-1 2-.4.5-1 1-1 2a2 2 0 0 0 2 2 2 2 0 1 0 0-4c-1 0-1.5.6-2 1-.5.4-1 1-2 1a2 2 0 0 1 0-4 2 2 0 0 0 0 4c1 0 1.5-.6 2-1 .5-.4 1-1 2-1a2 2 0 0 1 2 2Z"></path></svg>`,
+
+        "Water Heater": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"></path><path d="M12 14a6 6 0 0 0 6-6c0-1.4-.3-2.8-1-4a2 2 0 0 0-4 0 2 2 0 0 0-4 0c-.7 1.2-1 2.6-1 4a6 6 0 0 0 6 6Z"></path><path d="M16 9a4 4 0 0 1-8 0"></path></svg>`,
+
+        Toaster: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M6 8v8a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8H6Z"></path><path d="M19 6v2H5V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2Z"></path><path d="M8 12h8"></path><path d="M9 19v1"></path><path d="M15 19v1"></path></svg>`,
+
+        "Coffee Maker": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M17 8h1a4 4 0 1 1 0 8h-1"></path><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path><line x1="6" y1="2" x2="6" y2="4"></line><line x1="10" y1="2" x2="10" y2="4"></line><line x1="14" y1="2" x2="14" y2="4"></line></svg>`,
+
+        "Vacuum Cleaner": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M12 22a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"></path><path d="M5 11V7a7 7 0 0 1 14 0v4"></path><rect x="7" y="1" width="2" height="4"></rect><rect x="15" y="1" width="2" height="4"></rect></svg>`,
+
+        "Smartphone Charger": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><rect x="7" y="2" width="10" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12" y2="18"></line><path d="M7 9h10"></path><path d="M7 5h10"></path></svg>`,
+
+        // Default icon is now a zap icon
+        custom: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>`,
+      };
+
+      // Function to get appliance details including icon and wattage
+      function updateApplianceDetails(value) {
+        const customField = document.getElementById("customApplianceField");
+        const iconContainer = document.getElementById("applianceIcon");
+
+        // Handle custom appliance field visibility
+        if (value === "custom") {
+          customField.style.display = "block";
+          document.getElementById("wattage").value = "";
+          iconContainer.innerHTML = applianceIcons["custom"];
+        } else {
+          customField.style.display = "none";
+
+          // Set wattage and icon for pre-defined appliances
+          if (value) {
+            const appliances = [
+              { name: "Refrigerator", wattage: 150 },
+              { name: "Air Conditioner", wattage: 1500 },
+              { name: "Television", wattage: 100 },
+              { name: "Washing Machine", wattage: 500 },
+              { name: "Microwave Oven", wattage: 1000 },
+              { name: "Electric Iron", wattage: 1100 },
+              { name: "Desktop Computer", wattage: 200 },
+              { name: "Laptop", wattage: 50 },
+              { name: "Light Bulb (LED)", wattage: 10 },
+              { name: "Light Bulb (Incandescent)", wattage: 60 },
+              { name: "Electric Fan", wattage: 70 },
+              { name: "Water Heater", wattage: 4000 },
+              { name: "Toaster", wattage: 850 },
+              { name: "Coffee Maker", wattage: 800 },
+              { name: "Vacuum Cleaner", wattage: 1400 },
+              { name: "Smartphone Charger", wattage: 5 },
+            ];
+
+            const appliance = appliances.find((a) => a.name === value);
+            if (appliance) {
+              document.getElementById("wattage").value = appliance.wattage;
+
+              // Update the icon
+              iconContainer.innerHTML =
+                applianceIcons[value] || applianceIcons["custom"];
+            }
+          }
+        }
+      }
+
+      // Update slider max value and labels based on selected time unit
+      function updateSliderMax(unit) {
+        const slider = document.getElementById("hoursUsed");
+        const labels = document.getElementById("sliderLabels");
+        if (!slider) return; // Exit early if element doesn't exist
+        
+        let max, steps;
+        switch (unit) {
+          case "days":
+            max = 30; // Up to 30 days
+            steps = ["0.1d", "7.5d", "15d", "22.5d", "30d"];
+            break;
+          case "weeks":
+            max = 12; // Up to 12 weeks
+            steps = ["0.1w", "3w", "6w", "9w", "12w"];
+            break;
+          case "months":
+            max = 12; // Up to 12 months
+            steps = ["0.1m", "3m", "6m", "9m", "12m"];
+            break;
+          default: // hours
+            max = 24;
+            steps = ["0.1h", "6h", "12h", "18h", "24h"];
+            break;
+        }
+        slider.max = max;
+        slider.value = Math.min(slider.value, max);
+        updateHoursDisplay(slider.value, unit);
+        if (labels) {
+          labels.innerHTML = steps.map((step) => `<span>${step}</span>`).join("");
+        }
+      }
+
+      // Update hours display when slider or unit changes
+      function updateHoursDisplay(value, unit) {
+        const hoursDisplay = document.getElementById("hoursDisplay");
+        if (hoursDisplay) {
+          hoursDisplay.textContent = `${value} ${unit}`;
+        }
+      }
+
+      // Format number with commas for thousands separators
+      function formatNumber(input) {
+        // Get the current cursor position
+        const cursorPos = input.selectionStart;
+
+        // Store the original length of the input value
+        const originalLength = input.value.length;
+
+        // Remove all non-numeric characters
+        const numericValue = input.value.replace(/[^\d]/g, "");
+
+        // If empty after removing non-numerics, just set to empty
+        if (!numericValue) {
+          input.value = "";
+          return;
+        }
+
+        // Parse the numeric value
+        const numValue = parseInt(numericValue, 10);
+
+        // Don't format if it's NaN
+        if (isNaN(numValue)) {
+          input.value = "";
+          return;
+        }
+
+        // Format with commas
+        const formattedValue = numValue.toLocaleString("en-US");
+
+        // Calculate new cursor position (adjust for added/removed commas)
+        const newLength = formattedValue.length;
+        const lengthDiff = newLength - originalLength;
+        let newCursorPos = cursorPos + lengthDiff;
+
+        // Ensure cursor is in valid range
+        newCursorPos = Math.max(0, Math.min(newCursorPos, newLength));
+
+        // Set the new value
+        input.value = formattedValue;
+
+        // Restore cursor position
+        input.setSelectionRange(newCursorPos, newCursorPos);
+      }
+
+      // Update icons in history view
+      function updateHistoryIcons() {
+        const historyIcons = document.querySelectorAll(
+          ".history-appliance-icon"
+        );
+        historyIcons.forEach((icon) => {
+          const applianceName = icon.getAttribute("data-appliance");
+          icon.innerHTML =
+            applianceIcons[applianceName] || applianceIcons["custom"];
+        });
+      }
+
+      // Update the result view icon if available
+      function updateResultIcon() {
+        const resultIcon = document.getElementById("resultApplianceIcon");
+        if (resultIcon) {
+          const applianceName = resultIcon.getAttribute("data-appliance");
+          resultIcon.innerHTML =
+            applianceIcons[applianceName] || applianceIcons["custom"];
+        }
+      }
+      
+      // Function to show a specific dashboard section and hide others
+      function showSection(sectionId) {
+        // Hide all sections
+        document.querySelectorAll('.dashboard-section').forEach(section => {
+          section.classList.add('hidden');
+        });
+        
+        // Show the selected section
+        const selectedSection = document.getElementById(sectionId + '-section');
+        if (selectedSection) {
+          selectedSection.classList.remove('hidden');
+        }
+        
+        // Update navigation highlighting
+        document.querySelectorAll('.nav-item').forEach(item => {
+          item.classList.remove('border-indigo-500');
+          item.classList.add('border-transparent');
+        });
+        
+        // If this is the calculator section, make sure the results are hidden initially
+        if (sectionId === 'calculator') {
+          const calculationResults = document.getElementById('calculationResults');
+          if (calculationResults) {
+            // Only hide if it's a new calculation
+            if (!document.getElementById('wattage').value) {
+              calculationResults.classList.add('hidden');
+            }
+          }
+        }
+      }
+
+      // Reset form completely
+      function resetForm() {
+        const form = document.getElementById("calculationForm");
+        if (form) {
+          form.reset();
+          const customApplianceField = document.getElementById("customApplianceField");
+          if (customApplianceField) {
+            customApplianceField.style.display = "none";
+          }
+          
+          const applianceIcon = document.getElementById("applianceIcon");
+          if (applianceIcon) {
+            applianceIcon.innerHTML = applianceIcons["custom"];
+          }
+          
+          // Only call these functions if the elements exist
+          const hoursUsed = document.getElementById("hoursUsed");
+          const timeUnit = document.getElementById("timeUnit");
+          if (hoursUsed && timeUnit) {
+            updateSliderMax(timeUnit.value || "hours"); // Reset to current or default unit
+            updateHoursDisplay(hoursUsed.value || 1, timeUnit.value || "hours"); // Reset display
+          }
+        }
+      }
+
+      // Function to switch between tabs
+      function switchTab(tabId) {
+        // Hide all tabs
+        document.querySelectorAll(".content-tab").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+
+        // Remove active class from all nav links
+        document.querySelectorAll(".nav-link").forEach((link) => {
+          link.classList.remove("nav-item-active", "text-indigo-400");
+          link.classList.add(
+            "text-gray-400",
+            "hover:bg-opacity-5",
+            "hover:bg-white"
+          );
+        });
+
+        // Activate the selected tab
+        const selectedTab = document.getElementById(tabId + "-tab");
+        if (selectedTab) {
+          selectedTab.classList.add("active");
+        }
+
+        // Highlight the active nav link
+        const activeNavLink = document.querySelector(
+          `.nav-link[data-tab="${tabId}"]`
+        );
+        if (activeNavLink) {
+          activeNavLink.classList.add("nav-item-active", "text-indigo-400");
+          activeNavLink.classList.remove(
+            "text-gray-400",
+            "hover:bg-opacity-5",
+            "hover:bg-white"
+          );
+        }
+
+        // Special handling for results and history tabs
+        if (tabId === "results") {
+          checkEmptyResults();
+        } else if (tabId === "history") {
+          checkEmptyHistory();
+        } else if (tabId === "input") {
+          // Clear the form when switching to input tab from another tab
+          const activeTab = document.querySelector(".content-tab.active");
+          if (activeTab && activeTab.id !== "input-tab") {
+            resetForm();
+          }
+        }
+      }
+
+      // Show/hide empty states based on data availability
+      function checkEmptyResults() {
+        const resultsContent = document.getElementById("resultsContent");
+        const noResultsMessage = document.getElementById("noResultsMessage");
+
+        if (!resultsContent || resultsContent.children.length === 0) {
+          if (noResultsMessage) noResultsMessage.style.display = "block";
+          if (resultsContent) resultsContent.style.display = "none";
+        } else {
+          if (noResultsMessage) noResultsMessage.style.display = "none";
+          if (resultsContent) resultsContent.style.display = "grid";
+        }
+      }
+
+      function checkEmptyHistory() {
+        const historyContent = document.getElementById("historyContent");
+        const noHistoryMessage = document.getElementById("noHistoryMessage");
+        const clearAllLink = document.getElementById("clearAllLink");
+
+        if (!historyContent || historyContent.children.length === 0) {
+          if (noHistoryMessage) noHistoryMessage.style.display = "block";
+          if (historyContent) historyContent.style.display = "none";
+          if (clearAllLink) clearAllLink.style.display = "none";
+        } else {
+          if (noHistoryMessage) noHistoryMessage.style.display = "none";
+          if (historyContent) historyContent.style.display = "block";
+          if (clearAllLink) clearAllLink.style.display = "flex";
+        }
+      }
+
+      // Handle form submission via AJAX
+      // Handle form submission via AJAX
+      function setupFormSubmission() {
+        const form = document.getElementById("calculationForm");
+        if (form) {
+          // We're removing the general submit event listener since we now use
+          // the handleCalculationSubmit function directly from the form's onsubmit
+          // This prevents double processing and duplicate loading indicators
+          
+          // Note: We're keeping this function for backward compatibility, but it's now empty
+          // Any future additional form submission behavior can be added here if needed
+          console.log("Form submission handler initialized");
+        }
+      }
+      // Extract usage data from the DOM
+      function extractUsageData(doc) {
+        const usageHistory = [];
+        const historyItems = doc.querySelectorAll(".history-item");
+
+        historyItems.forEach((item) => {
+          try {
+            const id = item.id.replace("history-item-", "");
+            const applianceName = item.querySelector("h4").textContent.trim();
+            const date = item
+              .querySelector(".text-gray-400.text-xs")
+              .textContent.trim();
+
+            const dataBoxes = item.querySelectorAll(".bg-gray-800\\/50");
+
+            // Extract text values from each box
+            const wattageText = dataBoxes[0]
+              .querySelector(".text-white.font-medium")
+              .textContent.trim();
+            const durationText = dataBoxes[1]
+              .querySelector(".text-white.font-medium")
+              .textContent.trim();
+            const energyText = dataBoxes[2]
+              .querySelector(".text-white.font-medium")
+              .textContent.trim();
+            const costText = dataBoxes[3]
+              .querySelector(".text-white.font-medium")
+              .textContent.trim();
+
+            // Extract numeric values
+            const wattage = parseInt(wattageText.replace(/[^\d]/g, ""));
+            const kWhConsumed = parseFloat(energyText.replace(/[^\d.]/g, ""));
+            const cost = parseFloat(costText.replace(/[^\d.]/g, ""));
+
+            // Extract hours and time unit
+            const durationParts = durationText.split(" ");
+            const hoursUsed = parseFloat(durationParts[0]);
+            const timeUnit = durationParts[1];
+
+            usageHistory.push({
+              id,
+              applianceName,
+              wattage,
+              hoursUsed,
+              timeUnit,
+              kWhConsumed,
+              cost,
+              date,
+            });
+          } catch (err) {
+            console.error("Error parsing history item:", err);
+          }
+        });
+
+        return usageHistory;
+      }
+
+      // Update the results tab with the latest usage data
+      function updateResultsTab(usage) {
+        if (!usage) return;
+
+        document.getElementById("resultApplianceName").textContent =
+          usage.applianceName;
+        document.getElementById(
+          "resultApplianceDetails"
+        ).textContent = `${usage.wattage.toLocaleString()} watts • ${
+          usage.hoursUsed
+        } ${usage.timeUnit}`;
+        document.getElementById("resultKwh").textContent =
+          usage.kWhConsumed.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+
+        // Update progress bar
+        const kwhBarWidth =
+          usage.kWhConsumed > 5 ? 100 : usage.kWhConsumed * 20;
+        document.getElementById("resultKwhBar").style.width = `${kwhBarWidth}%`;
+
+        // Update cost
+        document.getElementById("resultCost").textContent =
+          usage.cost.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+
+        // Update budget percentage
+        const budgetPercent = (usage.cost / 1000) * 100;
+        document.getElementById(
+          "resultBudgetPercent"
+        ).textContent = `This is approximately ${budgetPercent.toLocaleString(
+          undefined,
+          { minimumFractionDigits: 1, maximumFractionDigits: 1 }
+        )}% of a ₦1,000 daily energy budget`;
+
+        // Update cost bar
+        const costBarWidth =
+          usage.cost > 1000 ? 100 : (usage.cost / 1000) * 100;
+        document.getElementById(
+          "resultCostBar"
+        ).style.width = `${costBarWidth}%`;
+
+        // Update appliance icon
+        document
+          .getElementById("resultApplianceIcon")
+          .setAttribute("data-appliance", usage.applianceName);
+        updateResultIcon();
+
+        // Show results content, hide no results message
+        document.getElementById("resultsContent").style.display = "grid";
+        document.getElementById("noResultsMessage").style.display = "none";
+      }
+
+      // Update the history tab with new usage data
+      function updateHistoryTab(usageHistory) {
+        const historyContent = document.getElementById("historyContent");
+
+        // Clear existing content
+        historyContent.innerHTML = "";
+
+        // Add new items
+        usageHistory.forEach((usage) => {
+          const historyItem = document.createElement("div");
+          historyItem.id = `history-item-${usage.id}`;
+          historyItem.className =
+            "history-item bg-gray-900/60 rounded-lg p-5 hover:bg-gray-800/60 transition-colors animate__animated animate__fadeIn shadow-md border border-gray-800/60";
+
+          historyItem.innerHTML = `
+            <div class="flex justify-between">
+              <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-indigo-900/30 rounded-lg history-appliance-icon" data-appliance="${
+                  usage.applianceName
+                }">
+                  ${
+                    applianceIcons[usage.applianceName] ||
+                    applianceIcons["custom"]
+                  }
+                </div>
+                <div>
+                  <h4 class="font-medium text-white">${usage.applianceName}</h4>
+                  <p class="text-gray-400 text-xs">${usage.date}</p>
+                </div>
+              </div>
+              <a href="#" onclick="deleteUsage(${
+                usage.id
+              }); return false;" data-id="${usage.id}" data-href="/delete/${
+            usage.id
+          }" class="delete-link h-8 w-8 flex items-center justify-center text-gray-500 hover:text-white hover:bg-gray-700 rounded-md transition">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+                  <path d="M3 6h18"></path>
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+              </a>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+              <div class="bg-gray-800/50 p-3 rounded-lg">
+                <p class="text-gray-400 text-xs">Wattage</p>
+                <p class="text-white font-medium">${usage.wattage.toLocaleString()} W</p>
+              </div>
+              <div class="bg-gray-800/50 p-3 rounded-lg">
+                <p class="text-gray-400 text-xs">Duration</p>
+                <p class="text-white font-medium">${usage.hoursUsed} ${
+            usage.timeUnit
+          }</p>
+              </div>
+              <div class="bg-gray-800/50 p-3 rounded-lg">
+                <p class="text-gray-400 text-xs">Energy</p>
+                <p class="text-white font-medium">${usage.kWhConsumed.toLocaleString(
+                  undefined,
+                  { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                )} kWh</p>
+              </div>
+              <div class="bg-gray-800/50 p-3 rounded-lg">
+                <p class="text-gray-400 text-xs">Cost</p>
+                <p class="text-white font-medium">₦${usage.cost.toLocaleString(
+                  undefined,
+                  { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                )}</p>
+              </div>
+            </div>
+          `;
+
+          historyContent.appendChild(historyItem);
+        });
+
+        // Update empty state
+        checkEmptyHistory();
+
+        // Update record count
+        const recordCount = usageHistory.length;
+        const historyCount = document.getElementById("historyCount");
+        if (historyCount) {
+          historyCount.textContent = recordCount.toLocaleString();
+        }
+      }
+
+      // Update stats summary
+      function updateStatsSummary(doc) {
+        const statsSummary = document.getElementById("statsSummary");
+        if (!statsSummary) return;
+
+        // Extract total energy, cost and record count
+        const totalEnergyText =
+          doc.getElementById("totalEnergyDisplay")?.textContent || "0 kWh";
+        const totalCostText =
+          doc.getElementById("totalCostDisplay")?.textContent || "₦0";
+        const recordCountText =
+          doc.getElementById("recordCountDisplay")?.textContent || "0";
+
+        // Parse values
+        const totalEnergy = parseFloat(totalEnergyText.replace(/[^\d.]/g, ""));
+        const totalCost = parseFloat(totalCostText.replace(/[^\d.]/g, ""));
+        const recordCount = parseInt(recordCountText.replace(/[^\d]/g, ""));
+
+        // Update displays
+        document.getElementById("totalEnergyDisplay").textContent =
+          totalEnergyText;
+        document.getElementById("totalCostDisplay").textContent = totalCostText;
+        document.getElementById("recordCountDisplay").textContent =
+          recordCountText;
+
+        // Update progress bars
+        document.getElementById("totalEnergyBar").style.width = `${
+          totalEnergy > 10 ? 100 : totalEnergy * 10
+        }%`;
+        document.getElementById("totalCostBar").style.width = `${
+          totalCost > 1000 ? 100 : totalCost / 10
+        }%`;
+        document.getElementById("recordCountBar").style.width = `${
+          recordCount > 10 ? 100 : recordCount * 10
+        }%`;
+
+        // Show stats summary if there's data
+        statsSummary.style.display = recordCount > 0 ? "block" : "none";
+      }
+
+      // Delete a usage record
+      function deleteUsage(id) {
+        if (!confirm("Are you sure you want to delete this record?")) return;
+        const deleteLink = document.querySelector(
+          `.delete-link[data-id="${id}"]`
+        );
+        const deleteUrl = deleteLink.getAttribute("data-href");
+        deleteLink.innerHTML =
+          '<span class="animate-spin inline-block">↻</span>';
+
+        fetch(deleteUrl, {
+          method: "POST",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            [csrfHeader]: csrfToken,
+          },
+        })
+          .then((response) => {
+            if (!response.ok) throw new Error("Delete failed");
+            return response.text();
+          })
+          .then((html) => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+            const usageHistory = extractUsageData(doc);
+            updateHistoryTab(usageHistory);
+            updateStatsSummary(doc);
+            if (usageHistory.length > 0) updateResultsTab(usageHistory[0]);
+            else {
+              document.getElementById("resultsContent").style.display = "none";
+              document.getElementById("noResultsMessage").style.display =
+                "block";
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting record:", error);
+            alert("Failed to delete record.");
+            deleteLink.innerHTML = "<svg ...>"; // Restore icon
+          });
+      }
+
+      // Update clearAllUsages
+      function clearAllUsages() {
+        if (!confirm("Are you sure you want to delete all records?")) return;
+        const clearAllLink = document.getElementById("clearAllLink");
+        const clearAllUrl = clearAllLink.getAttribute("data-href");
+        clearAllLink.innerHTML =
+          '<span class="animate-spin inline-block mr-1">↻</span> Clearing...';
+
+        fetch(clearAllUrl, {
+          method: "POST",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            [csrfHeader]: csrfToken,
+          },
+        })
+          .then((response) => {
+            if (!response.ok) throw new Error("Clear failed");
+            return response.text();
+          })
+          .then(() => {
+            document.getElementById("historyContent").innerHTML = "";
+            checkEmptyHistory();
+            document.getElementById("resultsContent").style.display = "none";
+            document.getElementById("noResultsMessage").style.display = "block";
+            document.getElementById("statsSummary").style.display = "none";
+            document.getElementById("historyCount").textContent = "";
+            clearAllLink.innerHTML = "<svg ...> Clear All"; // Restore text
+          })
+          .catch((error) => {
+            console.error("Error clearing records:", error);
+            alert("Failed to clear records.");
+            clearAllLink.innerHTML = "<svg ...> Clear All";
+          });
+      }
+      // Initialize everything when page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        // Mobile sidebar setup - removed overlay click handler
+        
+        // Setup user dropdown toggle
+        document.getElementById('userMenuToggle').addEventListener('click', toggleUserDropdown);
+        
+        // Close user dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+          const userMenu = document.getElementById('userMenuToggle');
+          const userDropdown = document.getElementById('userDropdownMenu');
+          
+          if (userMenu && userDropdown && !userMenu.contains(event.target) && !userDropdown.contains(event.target)) {
+            userDropdown.classList.add('hidden');
+          }
+        });
+        
+        // Check URL parameters and set initial tab
+        const urlParams = new URLSearchParams(window.location.search);
+        const viewParam = urlParams.get("view");
+
+        if (viewParam) {
+          switchTab(viewParam);
+        } else {
+          switchTab("input");
+        }
+
+        // Setup tab navigation
+        document.querySelectorAll(".nav-link").forEach((link) => {
+          link.addEventListener("click", function (e) {
+            e.preventDefault();
+            const tabId = this.getAttribute("data-tab");
+            switchTab(tabId);
+
+            // Update URL without page reload
+            history.pushState({}, "", `?view=${tabId}`);
+          });
+        });
+
+        // Setup form submission
+        setupFormSubmission();
+
+        // Initialize slider and icons
+        updateSliderMax("hours");
+        updateHistoryIcons();
+        updateResultIcon();
+
+        // Check empty states
+        checkEmptyResults();
+        checkEmptyHistory();
+        
+        // Initialize enhanced dashboard visualizations
+        initDashboardVisualizations();
+      });
+      
+      // Initialize enhanced dashboard visualizations
+      function initDashboardVisualizations() {
+        initUsageTrendsChart();
+        initEnergyDistributionChart();
+        initTrendIndicators();
+        
+        // Setup export data functionality
+        document.getElementById('exportDataBtn').addEventListener('click', exportUsageData);
+        
+        // Setup chart refresh functionality
+        document.getElementById('refreshChartBtn').addEventListener('click', function() {
+          this.classList.add('animate-spin');
+          setTimeout(() => {
+            initEnergyDistributionChart();
+            this.classList.remove('animate-spin');
+          }, 600);
+        });
+        
+        // Setup time range selector
+        document.getElementById('timeRangeSelector').addEventListener('change', function() {
+          initUsageTrendsChart(this.value);
+        });
+      }
+      
+      // Initialize Energy Usage Trends Chart
+      function initUsageTrendsChart(timeRange = 'month') {
+        const ctx = document.getElementById('usageTrendsChart').getContext('2d');
+        
+        // Sample data - in a real application, this would come from the backend
+        let labels, energyData, costData;
+        
+        // Generate sample data based on time range
+        if (timeRange === 'week') {
+          labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        } else if (timeRange === 'month') {
+          labels = Array.from({length: 30}, (_, i) => `${i+1}`);
+        } else if (timeRange === 'quarter') {
+          labels = ['Jan', 'Feb', 'Mar'];
+        } else {
+          labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        }
+        
+        // Generate random data
+        energyData = labels.map(() => Math.random() * 5 + 1); // Random values between 1-6
+        costData = energyData.map(value => value * 70); // Cost is energy * rate
+        
+        // Create chart with beautiful styling
+        if (window.usageTrendsChart) {
+          window.usageTrendsChart.destroy();
+        }
+        
+        window.usageTrendsChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'Energy (kWh)',
+                data: energyData,
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                borderWidth: 2,
+                pointBackgroundColor: '#6366f1',
+                pointBorderColor: '#fff',
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                fill: true,
+                tension: 0.4
+              },
+              {
+                label: 'Cost ($)',
+                data: costData,
+                borderColor: '#8b5cf6',
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                borderWidth: 2,
+                pointBackgroundColor: '#8b5cf6',
+                pointBorderColor: '#fff',
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                fill: true,
+                tension: 0.4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: {
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  font: {
+                    family: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                    size: 12
+                  }
+                }
+              },
+              tooltip: {
+                backgroundColor: 'rgba(30, 32, 47, 0.9)',
+                titleColor: 'rgba(255, 255, 255, 0.9)',
+                bodyColor: 'rgba(255, 255, 255, 0.7)',
+                borderColor: 'rgba(99, 102, 241, 0.3)',
+                borderWidth: 1,
+                padding: 12,
+                cornerRadius: 8,
+                titleFont: {
+                  size: 14,
+                  weight: 'bold'
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: {
+                  color: 'rgba(255, 255, 255, 0.05)'
+                },
+                ticks: {
+                  color: 'rgba(255, 255, 255, 0.5)'
+                }
+              },
+              y: {
+                grid: {
+                  color: 'rgba(255, 255, 255, 0.05)'
+                },
+                ticks: {
+                  color: 'rgba(255, 255, 255, 0.5)'
+                }
+              }
+            }
+          }
+        });
+      }
+      
+      // Initialize Energy Distribution Chart
+      function initEnergyDistributionChart() {
+        const ctx = document.getElementById('energyDistributionChart').getContext('2d');
+        
+        // Extract appliance data from the usage history
+        const usageData = extractUsageData();
+        
+        // Group by appliance name and sum kWh
+        const applianceGroups = {};
+        usageData.forEach(item => {
+          if (!applianceGroups[item.applianceName]) {
+            applianceGroups[item.applianceName] = 0;
+          }
+          applianceGroups[item.applianceName] += parseFloat(item.kWhConsumed);
+        });
+        
+        // Sort by consumption
+        const sortedAppliances = Object.entries(applianceGroups)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 6); // Get top 6
+        
+        const labels = sortedAppliances.map(item => item[0]);
+        const data = sortedAppliances.map(item => item[1]);
+        
+        // If no data, use sample data
+        if (labels.length === 0) {
+          labels.push('TV', 'Refrigerator', 'Air Conditioner', 'Washer', 'Lighting');
+          data.push(2.3, 4.5, 3.7, 1.8, 0.9);
+        }
+        
+        // Custom colors
+        const colors = [
+          'rgba(99, 102, 241, 0.8)',   // Indigo
+          'rgba(139, 92, 246, 0.8)',    // Purple
+          'rgba(59, 130, 246, 0.8)',    // Blue
+          'rgba(16, 185, 129, 0.8)',    // Green
+          'rgba(245, 158, 11, 0.8)',    // Amber
+          'rgba(239, 68, 68, 0.8)'      // Red
+        ];
+        
+        // Create chart
+        if (window.energyDistributionChart) {
+          window.energyDistributionChart.destroy();
+        }
+        
+        window.energyDistributionChart = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: data,
+              backgroundColor: colors,
+              borderColor: 'rgba(30, 32, 47, 0.6)',
+              borderWidth: 2,
+              hoverOffset: 15
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: {
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  font: {
+                    family: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                    size: 12
+                  },
+                  padding: 15,
+                  usePointStyle: true,
+                  pointStyle: 'circle'
+                }
+              },
+              tooltip: {
+                backgroundColor: 'rgba(30, 32, 47, 0.9)',
+                titleColor: 'rgba(255, 255, 255, 0.9)',
+                bodyColor: 'rgba(255, 255, 255, 0.7)',
+                borderColor: 'rgba(99, 102, 241, 0.3)',
+                borderWidth: 1,
+                padding: 12,
+                cornerRadius: 8,
+                callbacks: {
+                  label: function(context) {
+                    const label = context.label || '';
+                    const value = context.raw.toFixed(2);
+                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                    const percentage = ((context.raw / total) * 100).toFixed(1);
+                    return `${label}: ${value} kWh (${percentage}%)`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+      
+      // Initialize page components
+      function initPage() {
+        initTrendIndicators();
+        initializeCharts();
+      }
+      
+      // Initialize trend indicators
+      function initTrendIndicators() {
+        // Get trend elements
+        const energyTrend = document.getElementById('energyTrend');
+        const costTrend = document.getElementById('costTrend');
+        
+        // Random energy trend (-5% to +5%)
+        const energyChange = (Math.random() * 10 - 5).toFixed(1);
+        if (energyChange > 0) {
+          energyTrend.innerHTML = `<i class="fas fa-arrow-up mr-1"></i> <span>${energyChange}%</span> <span class="text-gray-500 ml-1">vs last month</span>`;
+          energyTrend.classList.remove('text-green-500', 'text-red-500');
+          energyTrend.classList.add('text-red-500');
+        } else {
+          energyTrend.innerHTML = `<i class="fas fa-arrow-down mr-1"></i> <span>${Math.abs(energyChange)}%</span> <span class="text-gray-500 ml-1">vs last month</span>`;
+          energyTrend.classList.remove('text-green-500', 'text-red-500');
+          energyTrend.classList.add('text-green-500');
+        }
+        
+        // Random cost trend (-5% to +5%)
+        const costChange = (Math.random() * 10 - 5).toFixed(1);
+        if (costChange > 0) {
+          costTrend.innerHTML = `<i class="fas fa-arrow-up mr-1"></i> <span>${costChange}%</span> <span class="text-gray-500 ml-1">vs last month</span>`;
+          costTrend.classList.remove('text-green-500', 'text-red-500');
+          costTrend.classList.add('text-red-500');
+        } else {
+          costTrend.innerHTML = `<i class="fas fa-arrow-down mr-1"></i> <span>${Math.abs(costChange)}%</span> <span class="text-gray-500 ml-1">vs last month</span>`;
+          costTrend.classList.remove('text-green-500', 'text-red-500');
+          costTrend.classList.add('text-green-500');
+        }
+      }
+      
+      // Initialize ApexCharts for premium visualizations
+      function initializeCharts() {
+        // Energy consumption over time chart
+        const energyConsumptionOptions = {
+          series: [{
+            name: 'Energy Consumption',
+            data: [4.2, 3.8, 5.1, 6.2, 5.7, 4.5, 7.1, 6.9, 5.3, 7.8, 5.2, 4.6, 3.9, 7.0]
+          }],
+          chart: {
+            height: 280,
+            type: 'area',
+            background: 'transparent',
+            fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+            toolbar: {
+              show: false
+            },
+            zoom: {
+              enabled: false
+            }
+          },
+          colors: ['#6366f1'],
+          dataLabels: {
+            enabled: false
+          },
+          stroke: {
+            curve: 'smooth',
+            width: 2
+          },
+          fill: {
+            type: 'gradient',
+            gradient: {
+              shadeIntensity: 1,
+              opacityFrom: 0.3,
+              opacityTo: 0.1,
+              stops: [0, 90, 100]
+            }
+          },
+          grid: {
+            borderColor: 'rgba(79, 84, 121, 0.15)',
+            row: {
+              colors: ['transparent'],
+              opacity: 0.5
+            },
+            padding: {
+              left: 0,
+              right: 0
+            }
+          },
+          xaxis: {
+            categories: ['Jan 1', 'Jan 2', 'Jan 3', 'Jan 4', 'Jan 5', 'Jan 6', 'Jan 7', 'Jan 8', 'Jan 9', 'Jan 10', 'Jan 11', 'Jan 12', 'Jan 13', 'Jan 14'],
+            labels: {
+              style: {
+                colors: '#9ca3af'
+              }
+            },
+            axisBorder: {
+              show: false
+            },
+            axisTicks: {
+              show: false
+            }
+          },
+          yaxis: {
+            min: 0,
+            labels: {
+              style: {
+                colors: '#9ca3af'
+              },
+              formatter: function(val) {
+                return val.toFixed(1) + ' kWh';
+              }
+            }
+          },
+          tooltip: {
+            theme: 'dark',
+            x: {
+              show: false
+            },
+            y: {
+              formatter: function(val) {
+                return val.toFixed(2) + ' kWh';
+              }
+            },
+            marker: {
+              show: false
+            },
+            style: {
+              fontSize: '12px',
+              fontFamily: "'Inter', sans-serif"
+            }
+          },
+          legend: {
+            show: false
+          }
+        };
+        
+        // Usage distribution by device chart
+        const usageDistributionOptions = {
+          series: [42, 23, 15, 12, 8],
+          chart: {
+            type: 'donut',
+            height: 260,
+            background: 'transparent',
+            fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          },
+          colors: ['#6366f1', '#8b5cf6', '#d946ef', '#ec4899', '#14b8a6'],
+          labels: ['Air Conditioner', 'Refrigerator', 'Lighting', 'Television', 'Other'],
+          dataLabels: {
+            enabled: false
+          },
+          plotOptions: {
+            pie: {
+              donut: {
+                size: '70%',
+                labels: {
+                  show: true,
+                  name: {
+                    show: true,
+                    fontSize: '12px',
+                    color: '#9ca3af',
+                    offsetY: -10
+                  },
+                  value: {
+                    show: true,
+                    fontSize: '20px',
+                    color: '#ffffff',
+                    fontWeight: 600,
+                    formatter: function(val) {
+                      return val + '%';
+                    }
+                  },
+                  total: {
+                    show: true,
+                    label: 'Total',
+                    fontSize: '11px',
+                    color: '#9ca3af',
+                    formatter: function() {
+                      return '100%';
+                    }
+                  }
+                }
+              }
+            }
+          },
+          legend: {
+            position: 'bottom',
+            fontSize: '12px',
+            markers: {
+              width: 8,
+              height: 8,
+              radius: 12
+            },
+            itemMargin: {
+              horizontal: 10,
+              vertical: 8
+            },
+            labels: {
+              colors: '#9ca3af'
+            }
+          },
+          stroke: {
+            width: 0
+          },
+          tooltip: {
+            theme: 'dark',
+            style: {
+              fontSize: '12px',
+              fontFamily: "'Inter', sans-serif"
+            }
+          }
+        };
+        
+        // Initialize charts if container elements exist
+        if (document.getElementById('energyConsumptionChart')) {
+          const energyConsumptionChart = new ApexCharts(document.getElementById('energyConsumptionChart'), energyConsumptionOptions);
+          energyConsumptionChart.render();
+        }
+        
+        if (document.getElementById('usageDistributionChart')) {
+          const usageDistributionChart = new ApexCharts(document.getElementById('usageDistributionChart'), usageDistributionOptions);
+          usageDistributionChart.render();
+        }
+      }
+      
+      // Function to export usage data
+      function exportUsageData() {
+        const usageData = extractUsageData();
+        
+        if (usageData.length === 0) {
+          alert('No data to export. Add some usage records first.');
+          return;
+        }
+        
+        // Format data for CSV
+        const headers = ['Appliance', 'Wattage', 'Hours Used', 'Time Unit', 'kWh Consumed', 'Cost', 'Date Recorded'];
+        
+        let csvContent = headers.join(',') + '\n';
+        
+        // Add data rows
+        usageData.forEach(item => {
+          const row = [
+            item.applianceName,
+            item.wattage,
+            item.hoursUsed,
+            item.timeUnit,
+            item.kWhConsumed,
+            item.cost,
+            new Date(item.recordedAt).toLocaleString()
+          ];
+          
+          // Escape any commas in the data
+          const escapedRow = row.map(cell => {
+            const cellStr = String(cell);
+            return cellStr.includes(',') ? `"${cellStr}"` : cellStr;
+          });
+          
+          csvContent += escapedRow.join(',') + '\n';
+        });
+        
+        // Create download link
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `power_usage_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      
+      // Helper function to extract usage data from the page
+      function extractUsageData() {
+        const usageHistory = document.querySelectorAll('.history-item');
+        const data = [];
+        
+        usageHistory.forEach(item => {
+          const applianceName = item.querySelector('[data-field="applianceName"]')?.textContent;
+          const wattage = item.querySelector('[data-field="wattage"]')?.textContent;
+          const hoursUsed = item.querySelector('[data-field="hoursUsed"]')?.textContent;
+          const timeUnit = item.querySelector('[data-field="timeUnit"]')?.textContent;
+          const kWhConsumed = item.querySelector('[data-field="kWhConsumed"]')?.textContent;
+          const cost = item.querySelector('[data-field="cost"]')?.textContent;
+          const recordedAt = item.querySelector('[data-field="recordedAt"]')?.textContent;
+          
+          if (applianceName) {
+            data.push({
+              applianceName,
+              wattage: parseFloat(wattage),
+              hoursUsed: parseFloat(hoursUsed),
+              timeUnit,
+              kWhConsumed: parseFloat(kWhConsumed),
+              cost: parseFloat(cost.replace('$', '')),
+              recordedAt
+            });
+          }
+        });
+        
+        return data;
+      }
+    </script>
+    <script>
+      // Dashboard Initialization
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize the comparison chart
+        updateComparisonChart();
+        
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-button')?.addEventListener('click', function() {
+          document.querySelector('.mobile-menu').classList.toggle('hidden');
+        });
+        
+        // Add refresh page functionality
+        window.refreshCurrentPage = function() {
+          // Show loading spinner on refresh button
+          const refreshBtn = document.getElementById('refreshDataBtn');
+          const originalContent = refreshBtn.innerHTML;
+          refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Refreshing...';
+          refreshBtn.disabled = true;
+          
+          // Fetch new data from the server
+          fetch(window.location.href)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              // Reload the current page
+              window.location.reload();
+            })
+            .catch(error => {
+              console.error('Error refreshing page:', error);
+              refreshBtn.innerHTML = originalContent;
+              refreshBtn.disabled = false;
+              alert('There was an error refreshing the page. Please try again.');
+            });
+        };
+        
+        // Improved mobile sidebar toggle function - removed overlay
+        window.toggleMobileSidebar = function() {
+          const sidebar = document.getElementById('mobileSidebarContent');
+          const hamburgerIcon = document.getElementById('hamburgerIcon');
+          
+          if (sidebar.classList.contains('-translate-x-full')) {
+            // Open sidebar
+            sidebar.classList.remove('-translate-x-full');
+            // Change hamburger to X
+            hamburgerIcon.classList.remove('fa-bars');
+            hamburgerIcon.classList.add('fa-times');
+          } else {
+            // Close sidebar
+            sidebar.classList.add('-translate-x-full');
+            // Change X back to hamburger
+            hamburgerIcon.classList.remove('fa-times');
+            hamburgerIcon.classList.add('fa-bars');
+          }
+        };
+        
+        // Initialize all dashboard components and visualizations
+        initPage();
+        
+        // Handle sidebar navigation
+        document.querySelectorAll('[onclick*="showSection"]').forEach(link => {
+          link.addEventListener('click', function(e) {
+            // Close mobile sidebar if open
+            if (window.innerWidth < 1024) {
+              document.getElementById('sidebar').classList.add('hidden');
+            }
+          });
+        });
+        
+        // Initialize search functionality for history
+        const searchInput = document.getElementById('usageSearchInput');
+        if (searchInput) {
+          searchInput.addEventListener('input', filterUsageHistory);
+        }
+        
+        // Initialize filter functionality for history
+        const filterSelect = document.getElementById('usageFilterSelect');
+        if (filterSelect) {
+          filterSelect.addEventListener('change', filterUsageHistory);
+        }
+      });
+      
+      // Dashboard Section Navigation Functions - Updated for URL-based routing
+      function showSection(sectionId) {
+        // Map section IDs to URL paths
+        const sectionRoutes = {
+          'dashboard': '/dashboard',
+          'analytics': '/analytics',
+          'calculator': '/usage-calculator',
+          'history': '/usage-history',
+          'settings': '/settings',
+          'management': '/management'
+        };
+
+        // Navigate to the proper URL
+        if (sectionRoutes[sectionId]) {
+          window.location.href = sectionRoutes[sectionId];
+        }
+        
+        return false; // Prevent default action
+      }
+      
+      // Energy Usage Calculator Functionality
+      function calculateUsage() {
+        const applianceName = document.getElementById('applianceName').value;
+        const wattage = parseFloat(document.getElementById('wattage').value);
+        const hoursUsed = parseFloat(document.getElementById('hoursUsed').value);
+        const timeUnit = document.getElementById('timeUnit').value;
+        const costPerKwh = parseFloat(document.getElementById('energyCost').value);
+        
+        if (!applianceName || isNaN(wattage) || isNaN(hoursUsed) || isNaN(costPerKwh)) {
+          alert('Please fill in all required fields with valid numbers.');
+          return;
+        }
+        
+        // Calculate values based on time unit
+        let totalHours = hoursUsed;
+        switch (timeUnit) {
+          case 'days':
+            totalHours = hoursUsed * 24;
+            break;
+          case 'weeks':
+            totalHours = hoursUsed * 24 * 7;
+            break;
+          case 'months':
+            totalHours = hoursUsed * 24 * 30;
+            break;
+        }
+        
+        // Calculate energy consumption in kWh
+        const kwhConsumed = (wattage * totalHours) / 1000;
+        
+        // Calculate cost
+        const cost = kwhConsumed * costPerKwh;
+        
+        // Calculate carbon footprint (approximate - 0.5 kg CO2 per kWh)
+        const carbonFootprint = kwhConsumed * 0.5;
+        
+        // Display results
+        document.getElementById('resultKwh').textContent = kwhConsumed.toFixed(2) + ' kWh';
+        document.getElementById('resultCost').textContent = '$' + cost.toFixed(2);
+        document.getElementById('resultCO2').textContent = carbonFootprint.toFixed(2) + ' kg';
+        
+        // Show results section
+        document.getElementById('calculationResults').classList.remove('hidden');
+      }
+      
+      // Save calculation to history
+      function saveCalculation() {
+        // In a real implementation, this would send data to the server
+        // For demo purposes, we'll show a success message
+        alert('Calculation saved successfully!');
+        
+        // In a real implementation, you would do something like this:
+        /*
+        const applianceName = document.getElementById('applianceName').value;
+        const wattage = parseFloat(document.getElementById('wattage').value);
+        const hoursUsed = parseFloat(document.getElementById('hoursUsed').value);
+        const timeUnit = document.getElementById('timeUnit').value;
+        
+        fetch('/saveUsage', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+          },
+          body: JSON.stringify({
+            applianceName: applianceName,
+            wattage: wattage,
+            hoursUsed: hoursUsed,
+            timeUnit: timeUnit
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Show success message and maybe redirect to history tab
+            showSection('history');
+          }
+        });
+        */
+      }
+      
+      // Filter history records
+      function filterUsageHistory() {
+        const searchTerm = document.getElementById('usageSearchInput').value.toLowerCase();
+        const filterType = document.getElementById('usageFilterSelect').value;
+        
+        const historyItems = document.querySelectorAll('.history-item');
+        
+        historyItems.forEach(item => {
+          const applianceName = item.querySelector('[data-field="applianceName"]').textContent.toLowerCase();
+          const energy = parseFloat(item.querySelector('[data-field="kWhConsumed"]').textContent);
+          const date = item.querySelector('[data-field="recordedAt"]').textContent;
+          
+          let showItem = true;
+          
+          // Apply search filter
+          if (searchTerm && !applianceName.includes(searchTerm)) {
+            showItem = false;
+          }
+          
+          // Apply category filter
+          if (filterType !== 'all') {
+            const currentDate = new Date();
+            const itemDate = new Date(date);
+            
+            switch (filterType) {
+              case 'high-usage':
+                if (energy < 5) showItem = false; // Example threshold
+                break;
+              case 'low-usage':
+                if (energy >= 5) showItem = false; // Example threshold
+                break;
+              case 'this-month':
+                if (itemDate.getMonth() !== currentDate.getMonth() || 
+                    itemDate.getFullYear() !== currentDate.getFullYear()) {
+                  showItem = false;
+                }
+                break;
+              case 'last-month':
+                const lastMonth = currentDate.getMonth() === 0 ? 11 : currentDate.getMonth() - 1;
+                const lastMonthYear = currentDate.getMonth() === 0 ? 
+                  currentDate.getFullYear() - 1 : currentDate.getFullYear();
+                  
+                if (itemDate.getMonth() !== lastMonth || 
+                    itemDate.getFullYear() !== lastMonthYear) {
+                  showItem = false;
+                }
+                break;
+            }
+          }
+          
+          // Show or hide the item
+          item.style.display = showItem ? '' : 'none';
+        });
+      }
+      
+      // Initialize page components
+      function initPage() {
+        initTrendIndicators();
+        initializeCharts();
+      }
+    </script>
+  </body>
+</html>
