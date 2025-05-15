@@ -3,18 +3,17 @@
 ## Slide 1: Title Slide
 - **Title**: PowerTracker: Electricity Usage Monitoring System
 - **Subtitle**: A Web-Based Solution for Energy Consumption Analysis
-- **Team**: Energy Insight Team
+- **Team**: Tech Surge
 - **Date**: May 2025
 
 ## Slide 2: Team Introduction
 - **Heading**: Meet Our Team
 - **Content**: 
-  - [Your Name] - Lead Developer & Project Manager
-  - [Team Member 1] - Frontend Developer
-  - [Team Member 2] - Backend Developer
-  - [Team Member 3] - UI/UX Designer
-  - [Team Member 4] - QA Engineer
-- **Visual**: Team photos arranged in a circular layout
+- Ifenkwe Chijindu Praise - Lead Developer and Project Manager
+- Michelle Hyeladzira Wakawa, Akojede Doluwamu James, Oladipo-joseph David Oluwagbemiga - Frontend Developer
+- Ifenkwe Chijindu Praise, Itulua cheluh osedebhamie - Backend Developer
+- Oluwatuyi Olubunmi Favour, Ajayi Peculiar Oluwaseunfunmi, Abdullahi Abubakar Siddiq - UI/UX Designer
+- Itulua cheluh osedebhamie - Quality Assurance Engineer
 
 ## Slide 3: Problem Statement
 - **Heading**: The Challenge
@@ -95,8 +94,6 @@
 - **Content**:
   - Spring Security integration
   - Password encryption with BCrypt
-  - OAuth2 social login options
-  - Email verification system
   - CSRF protection
 - **Visual**: Security architecture diagram
 
@@ -118,24 +115,6 @@
   - Educational impact in university setting
 - **Visual**: Results metrics with visual indicators of success
 
-## Slide 14: Future Development
-- **Heading**: Future Roadmap
-- **Content**:
-  - Smart meter integration
-  - Mobile application development
-  - Machine learning for usage predictions
-  - Community features and benchmarking
-  - IoT device connectivity
-- **Visual**: Timeline showing planned feature releases
-
-## Slide 15: Lessons Learned
-- **Heading**: Key Takeaways
-- **Content**:
-  - Technical insights: Spring Boot scalability advantages
-  - UX findings: Visualization drives user engagement
-  - Development process: Agile methodology benefits
-  - Skills gained by team members
-- **Visual**: Quote bubbles from team members about their learning
 
 ## Slide 16: Demonstration
 - **Heading**: Live Application Demo
@@ -145,13 +124,6 @@
   - Key features to explore
 - **Visual**: Large QR code and application logo
 
-## Slide 17: Questions & Discussion
-- **Heading**: Questions?
-- **Content**:
-  - Contact information
-  - Project repository link
-  - Thank you message
-- **Visual**: Team photo with contact details
 
 ## Presentation Tips
 
@@ -180,15 +152,8 @@
    - Discuss limitations
    - Present future development plans
 
-6. **Q&A (5-10 minutes)**
-   - Prepare for potential questions:
-     - Database design decisions
-     - Calculation accuracy
-     - Security implementation
-     - Scalability considerations
-
 ### Visual Presentation Tips
-- Use consistent color scheme (blue and white theme aligning with application)
+- Use consistent color scheme (black and white theme aligning with application)
 - Limit text on slides (bullet points only)
 - Use high-quality screenshots
 - Incorporate simple animations for transitions

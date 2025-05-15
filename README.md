@@ -7,9 +7,6 @@ PowerTracker is a comprehensive web application designed to help users monitor, 
 
 ### User Authentication and Management
 - Secure user registration and login system
-- OAuth2 social login integration (Google, Facebook, GitHub)
-- Email verification for account security
-- Password reset functionality
 - User profile management with customizable settings
 
 ### Electricity Usage Tracking
@@ -63,8 +60,6 @@ PowerTracker is a comprehensive web application designed to help users monitor, 
 ### Data Model
 - **User**: Stores user information, authentication details, and preferences
 - **ApplianceUsage**: Records individual usage entries with energy calculations
-- **OtpVerification**: Manages one-time passwords for email verification
-- **PasswordResetToken**: Handles password reset functionality
 
 ### API Design
 - RESTful API endpoints for CRUD operations
@@ -77,7 +72,6 @@ PowerTracker is a comprehensive web application designed to help users monitor, 
 - Java 17 or higher
 - Maven
 - PostgreSQL database
-- SMTP server access for email functionality
 
 ### Database Configuration
 1. Create a PostgreSQL database
@@ -86,16 +80,6 @@ PowerTracker is a comprehensive web application designed to help users monitor, 
    spring.datasource.url=jdbc:postgresql://localhost:5432/powertracker
    spring.datasource.username=your_username
    spring.datasource.password=your_password
-   ```
-
-### Email Configuration
-1. Set up SendInBlue/Brevo account
-2. Configure email properties in `application.properties`:
-   ```properties
-   spring.mail.host=smtp.your-email-provider.com
-   spring.mail.port=587
-   spring.mail.username=your_email
-   spring.mail.password=your_password
    ```
 
 ### Building and Running
@@ -128,9 +112,6 @@ docker run -p 8080:8080 powertracker
 
 ### Registration and Login
 1. New users can register using the sign-up form
-2. Email verification is required to activate the account
-3. Users can also login via OAuth2 providers (Google, Facebook, GitHub)
-4. Password reset functionality is available for account recovery
 
 ### Adding Energy Usage
 1. Navigate to the Usage Calculator section
@@ -164,8 +145,6 @@ docker run -p 8080:8080 powertracker
 - Password encryption using BCrypt
 - CSRF protection for form submissions
 - Secure session management
-- OAuth2 integration for delegated authentication
-- Email verification to prevent account abuse
 
 ## Browser Compatibility
 PowerTracker is optimized for modern browsers including:
@@ -180,32 +159,10 @@ PowerTracker is optimized for modern browsers including:
 - Caching mechanisms for frequently accessed data
 - Responsive design for all device sizes
 
-## Future Enhancements
-- Mobile application integration
-- Smart home device connectivity
-- AI-powered recommendations for energy savings
-- Community features for comparing usage with similar households
-- Integration with utility providers for actual billing data
-
 ## Troubleshooting
-- **Login Issues**: Ensure email verification is completed
 - **Calculation Errors**: Verify wattage and duration inputs are correct
 - **Display Problems**: Clear browser cache and reload
 - **Data Not Saving**: Check database connection
-
-## Support
-For technical support or feature requests, please contact:
-- Email: support@powertracker.com
-- GitHub Issues: https://github.com/yourusername/electric-usage-tracker/issues
-
-## Contributors
-- [Your Name] - Lead Developer
-- [Team Member 1] - UI/UX Design
-- [Team Member 2] - Backend Development
-- [Team Member 3] - Testing and Documentation
-
-## License
-This project is licensed under the [License Name] - see the LICENSE file for details.
 
 ---
 

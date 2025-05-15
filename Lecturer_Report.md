@@ -4,14 +4,14 @@
 PowerTracker: A Web-Based Electricity Consumption Monitoring and Analysis System
 
 ## Team Name
-Energy Insight Team
+Tech Surge
 
 ## Team Members
-- [Your Name] - Lead Developer and Project Manager
-- [Team Member 1] - Frontend Developer
-- [Team Member 2] - Backend Developer
-- [Team Member 3] - UI/UX Designer
-- [Team Member 4] - Quality Assurance Engineer
+- Ifenkwe Chijindu Praise - Lead Developer and Project Manager
+- Michelle Hyeladzira Wakawa, Akojede Doluwamu James, Oladipo-joseph David Oluwagbemiga - Frontend Developer
+- Ifenkwe Chijindu Praise, Itulua cheluh osedebhamie - Backend Developer
+- Oluwatuyi Olubunmi Favour, Ajayi Peculiar Oluwaseunfunmi, Abdullahi Abubakar Siddiq - UI/UX Designer
+- Itulua cheluh osedebhamie - Quality Assurance Engineer
 
 ## 1. Introduction
 
@@ -264,32 +264,9 @@ PowerTracker successfully delivers a comprehensive solution for electricity usag
 - Cost calculations to quantify the financial impact of energy use
 - Recommendations for optimizing consumption and reducing costs
 
-### 6.2 Future Work
-The development roadmap includes:
-- **Hardware Integration**: Compatibility with smart meters and IoT devices
-- **Advanced Analytics**: Machine learning for usage prediction and anomaly detection
-- **Mobile Platform**: Native applications for iOS and Android
-- **Community Features**: Anonymous data sharing for benchmarking against similar households
-- **Utility Integration**: Direct access to billing information from electricity providers
-
 ### 6.3 Final Thoughts
 PowerTracker demonstrates that software-based approaches to energy monitoring can be effective tools for promoting conservation and efficiency. By making energy consumption visible and actionable at the appliance level, the system empowers users to make informed decisions about their electricity usage. As energy costs continue to rise and environmental concerns grow, tools like PowerTracker will play an increasingly important role in sustainable living practices.
 
-## 7. References
-
-1. Smith, J., & Johnson, A. (2022). "Residential Energy Monitoring: Trends and Technologies." Journal of Energy Management, 45(3), 112-128.
-
-2. Brown, L. (2021). "Behavioral Economics Approaches to Energy Conservation." Energy Policy Review, 18(2), 78-95.
-
-3. García, R., et al. (2023). "User-Centric Design for Energy Monitoring Applications." International Conference on Sustainable Computing, 234-249.
-
-4. Nigerian Electricity Regulatory Commission. (2022). "Residential Electricity Consumption Patterns in Urban Areas." NERC Annual Report.
-
-5. World Energy Council. (2023). "Digital Solutions for Energy Efficiency." Global Energy Transition Report.
-
-6. Lee, K., & Park, S. (2022). "Gamification in Energy Conservation Applications." IEEE Transactions on Sustainable Computing, 7(4), 321-335.
-
-7. Department of Energy. (2023). "Appliance Energy Consumption Guide." Energy Efficiency Standards Report.
 
 ## 8. Appendices
 

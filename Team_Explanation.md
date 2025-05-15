@@ -55,10 +55,8 @@ PowerTracker implements a classic three-tier architecture:
 ## Application Workflow
 
 ### 1. Authentication Flow
-- Registration: Users register via form or OAuth providers
-- Email Verification: OTP verification for email validation
+- Registration: Users register via form 
 - Login: Credentials or social login
-- Password Reset: Forgot password functionality
 
 ### 2. Energy Usage Tracking
 When a user records an appliance's energy usage:
@@ -229,24 +227,18 @@ public int calculateEfficiencyScore(User user) {
 ## Testing the Application
 
 ### Manual Testing Checklist
-1. User Registration and Login
-   - Create new account
-   - Verify email verification process
-   - Test social login options
-   - Try password reset flow
-
-2. Dashboard Functionality
+1. Dashboard Functionality
    - Check all metrics display correctly
    - Test chart interactions
    - Verify efficiency score calculation
 
-3. Usage Calculator
+2. Usage Calculator
    - Test with predefined appliances
    - Test with custom appliance entry
    - Verify calculations for different time units
    - Check saved results appear in history
 
-4. Settings
+3. Settings
    - Change electricity rate
    - Update currency preference
    - Verify changes reflect in calculations
