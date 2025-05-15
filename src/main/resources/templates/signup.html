@@ -237,13 +237,17 @@
                     <i class="fas fa-exclamation-circle mr-2"></i>
                     <span th:text="${param.error}">Error message</span>
                 </div>
+                <div id="passwordError" class="mt-4 p-3 bg-red-500/20 text-red-300 rounded-lg text-sm font-medium animate__animated animate__headShake hidden">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span>Passwords do not match</span>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
                 <!-- Form Section -->
                 <div class="lg:col-span-3">
                     <div class="card-glass rounded-xl overflow-hidden">
-                        <div class="p-8">
+                        <div class="p-0 sm:p-8">
                             <form th:action="@{/signup}" method="post" th:object="${user}" class="space-y-6">
                                 <!-- Name Field -->
                                 <div class="relative">
@@ -301,10 +305,6 @@
                                     <input type="password" id="confirmPassword" name="confirmPassword" 
                                            class="input-field w-full px-10 py-3 rounded-lg focus:ring-2 focus:ring-indigo-500"
                                            placeholder="Confirm Password" required>
-                                    <div id="passwordMatch" class="hidden error-message">
-                                        <i class="fas fa-exclamation-circle mr-1"></i>
-                                        <span>Passwords do not match</span>
-                                    </div>
                                 </div>
 
                                 <!-- Terms and Conditions -->
@@ -436,7 +436,6 @@
             const passwordInput = document.getElementById('password');
             const confirmPasswordInput = document.getElementById('confirmPassword');
             const toggleButton = document.querySelector('.toggle-password');
-            const passwordMatch = document.getElementById('passwordMatch');
             const submitButton = document.getElementById('submitButton');
             const passwordStrength = document.getElementById('passwordStrength');
             
@@ -453,55 +452,7 @@
                 }
             });
             
-            // Check password match - only when user finishes typing
-            let typingTimer;  // Timer identifier
-            const doneTypingInterval = 800;  // Time in ms (800 ms = wait for 0.8 seconds)
-            
-            // Hide error message by default when the page loads
-            passwordMatch.classList.add('hidden');
-            
-            // On keyup, start the countdown
-            confirmPasswordInput.addEventListener('input', function() {
-                clearTimeout(typingTimer);
-                
-                // Always hide error while typing
-                passwordMatch.classList.add('hidden');
-                submitButton.disabled = false;
-                
-                // Only check for match if both fields have content
-                if (passwordInput.value && confirmPasswordInput.value) {
-                    typingTimer = setTimeout(function() {
-                        // User has finished typing, now check if passwords match
-                        if (passwordInput.value !== confirmPasswordInput.value) {
-                            passwordMatch.classList.remove('hidden');
-                            submitButton.disabled = true;
-                        } else {
-                            passwordMatch.classList.add('hidden');
-                            submitButton.disabled = false;
-                        }
-                    }, doneTypingInterval);
-                }
-            });
-            
-            // Also check when password field changes
-            passwordInput.addEventListener('input', function() {
-                if (confirmPasswordInput.value) {
-                    clearTimeout(typingTimer);
-                    // Always hide error while typing
-                    passwordMatch.classList.add('hidden');
-                    submitButton.disabled = false;
-                    
-                    typingTimer = setTimeout(function() {
-                        if (passwordInput.value !== confirmPasswordInput.value) {
-                            passwordMatch.classList.remove('hidden');
-                            submitButton.disabled = true;
-                        } else {
-                            passwordMatch.classList.add('hidden');
-                            submitButton.disabled = false;
-                        }
-                    }, doneTypingInterval);
-                }
-            });
+            // Password match validation has been removed
             
             // Password strength meter
             passwordInput.addEventListener('input', function() {
@@ -529,14 +480,20 @@
                 }
             });
             
-            // Form submit animation
+            // Form submit animation and password validation
             const form = document.querySelector('form');
+            const passwordError = document.getElementById('passwordError');
             
             form.addEventListener('submit', function(e) {
-                // Check if passwords match before submission, but only if both fields have content
-                if (passwordInput.value && confirmPasswordInput.value && passwordInput.value !== confirmPasswordInput.value) {
+                // Hide any previous error
+                passwordError.classList.add('hidden');
+                
+                // Check if passwords match before submission
+                if (passwordInput.value !== confirmPasswordInput.value) {
                     e.preventDefault();
-                    passwordMatch.classList.remove('hidden');
+                    passwordError.classList.remove('hidden');
+                    // Scroll to the error message
+                    passwordError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     return;
                 }
                 
