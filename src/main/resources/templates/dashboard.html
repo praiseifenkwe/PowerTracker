@@ -125,6 +125,85 @@
         border-color: #6366f1;
         box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
       }
+      
+      /* Full-page loader styles */
+      .fullpage-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1a1c2d 0%, #121420 100%);
+        z-index: 9999;
+        transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        padding: 1rem;
+      }
+      
+      .fullpage-loader.hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+      
+      .loader-logo {
+        margin-bottom: 2rem;
+        animation: pulse 2s infinite;
+        text-align: center;
+      }
+      
+      .loader-logo h1 {
+        font-size: clamp(2rem, 5vw, 3.5rem);
+      }
+      
+      /* Spinner removed for minimal design */
+      
+      .loader-text {
+        margin-top: 1.5rem;
+        color: white;
+        font-size: clamp(1rem, 3vw, 1.25rem);
+        font-weight: 500;
+        text-align: center;
+      }
+      
+      .progress-bar-container {
+        width: clamp(200px, 80vw, 300px);
+        height: clamp(6px, 1.5vw, 8px);
+        background: rgba(79, 84, 121, 0.3);
+        border-radius: 4px;
+        margin-top: 1rem;
+        overflow: hidden;
+      }
+      
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+      
+      /* Mobile adjustments */
+      @media (max-width: 640px) {
+        .loader-logo {
+          margin-bottom: 1.5rem;
+        }
+        
+        .loader-text {
+          margin-top: 1rem;
+        }
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+      }
 
       /* Custom range slider styling */
       input[type="range"] {
@@ -217,6 +296,16 @@
     class="min-h-screen bg-gradient-custom text-gray-200"
     xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
   >
+    <!-- Full-page loading animation -->
+    <div class="fullpage-loader" id="fullPageLoader">
+      <div class="loader-logo">
+        <h1 class="text-4xl font-bold gradient-text">PowerTracker</h1>
+      </div>
+      <div class="loader-text">Loading</div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="loadingProgress"></div>
+      </div>
+    </div>
     <!-- Main dashboard wrapper with sidebar layout -->
     <div class="flex h-screen overflow-hidden bg-gradient-custom">
       <!-- Sidebar -->
@@ -376,11 +465,39 @@
             
             <!-- Key Metrics Cards -->
             <div class="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-5 lg:gap-7 mb-8 animate__animated animate__fadeIn max-w-full metrics-grid">
-              <!-- Custom media query style for extremely small devices -->
+              <!-- Custom media query style for metrics responsiveness -->
               <style>
                 @media (max-width: 350px) {
                   .metrics-grid {
                     grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+                  }
+                }
+                
+                /* Enhanced mobile styles for metric cards */
+                @media (max-width: 640px) {
+                  .card-stat {
+                    padding: 1rem !important;
+                  }
+                  
+                  .card-stat .text-xs,
+                  .card-stat .text-sm {
+                    font-size: 0.9rem !important;
+                    margin-bottom: 0.5rem !important;
+                  }
+                  
+                  .card-stat .text-lg,
+                  .card-stat .text-xl {
+                    font-size: 1.5rem !important;
+                    line-height: 1.75rem !important;
+                  }
+                  
+                  .stat-icon {
+                    width: 3rem !important;
+                    height: 3rem !important;
+                  }
+                  
+                  .stat-icon i {
+                    font-size: 1.5rem !important;
                   }
                 }
               </style>
@@ -540,33 +657,6 @@
               </div>
             </div>
             
-            <!-- Comparison & Benchmarks -->
-            <div class="card-glass rounded-xl overflow-hidden">
-              <div class="p-6">
-                <h3 class="text-xl font-bold text-white mb-6">Usage Comparison</h3>
-                
-                <!-- Comparison Title -->
-                <div class="border-b border-gray-700 mb-6">
-                  <div class="px-4 py-2 text-white">Similar Homes Comparison</div>
-                </div>
-                
-                <!-- Comparison Chart -->
-                <div class="h-60 mb-6" id="comparisonChart"></div>
-                
-                <!-- Efficiency Tips -->
-                <div class="p-4 bg-gradient-to-br from-green-900/20 to-green-900/5 rounded-lg border border-green-500/10">
-                  <div class="flex items-center">
-                    <div class="p-2 rounded-full bg-green-500/20 mr-3">
-                      <i class="fas fa-leaf text-green-400"></i>
-                    </div>
-                    <div>
-                      <h4 class="font-medium text-white text-sm">Efficiency Suggestion</h4>
-                      <p class="text-xs text-gray-400 mt-1 efficiency-tip-text">You're using 15% more energy on weekends than comparable homes. Consider adjusting your thermostat by 2°F to save up to $12.40 monthly.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </section>
           
           <!-- Calculator Section -->
@@ -3430,6 +3520,63 @@
         initTrendIndicators();
         initializeCharts();
       }
+    </script>
+
+    <!-- Page Loading Animation Script -->
+    <script>
+      // Loading animation control
+      document.addEventListener('DOMContentLoaded', function() {
+        // Get loader elements
+        const loader = document.getElementById('fullPageLoader');
+        const progressBar = document.getElementById('loadingProgress');
+        
+        // Make sure loader is visible when page loads
+        loader.classList.remove('hidden');
+        
+        // Start the loading animation
+        simulateLoading();
+        
+        // Hide loader after everything is loaded
+        window.addEventListener('load', function() {
+          // Ensure all images, charts and resources are fully loaded
+          setTimeout(hideLoader, 800);
+        });
+        
+        // Simulate loading progress
+        function simulateLoading() {
+          let width = 0;
+          
+          // Fast initial progress to 70%
+          const initialInterval = setInterval(() => {
+            if (width >= 70) {
+              clearInterval(initialInterval);
+              // Slower progress for the remaining 30%
+              const finalInterval = setInterval(() => {
+                if (width >= 98) {
+                  clearInterval(finalInterval);
+                } else {
+                  width += 0.5;
+                  progressBar.style.width = width + '%';
+                }
+              }, 50);
+            } else {
+              width += 5;
+              progressBar.style.width = width + '%';
+            }
+          }, 40);
+        }
+        
+        // Hide the loader when content is ready
+        function hideLoader() {
+          // Complete the progress bar
+          progressBar.style.width = '100%';
+          
+          // After a short delay, hide the loader
+          setTimeout(() => {
+            loader.classList.add('hidden');
+          }, 500);
+        }
+      });
     </script>
   </body>
 </html>

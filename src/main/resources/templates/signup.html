@@ -234,8 +234,20 @@
                 <h2 class="text-3xl font-extrabold text-white mb-2">Create Your Account</h2>
                 <p class="text-gray-400">Start optimizing your energy usage today</p>
                 <div th:if="${param.error}" class="mt-4 p-3 bg-red-500/20 text-red-300 rounded-lg text-sm font-medium animate__animated animate__headShake">
-                    <i class="fas fa-exclamation-circle mr-2"></i>
-                    <span th:text="${param.error}">Error message</span>
+                    <i class="fas fa-exclamation-circle mr-1"></i>
+                    <span>An error occurred. Please try again.</span>
+                </div>
+                <div th:if="${error}" class="mt-4 p-3 bg-red-500/20 text-red-300 rounded-lg text-sm font-medium animate__animated animate__headShake">
+                    <i class="fas fa-exclamation-circle mr-1"></i>
+                    <span th:text="${error}">Error message</span>
+                </div>
+                <div th:if="${emailError}" class="mt-4 p-3 bg-red-500/20 text-red-300 rounded-lg text-sm font-medium animate__animated animate__headShake">
+                    <i class="fas fa-exclamation-circle mr-1"></i>
+                    <span th:text="${emailError}">Email error</span>
+                </div>
+                <div th:if="${passwordError}" class="mt-4 p-3 bg-red-500/20 text-red-300 rounded-lg text-sm font-medium animate__animated animate__headShake">
+                    <i class="fas fa-exclamation-circle mr-1"></i>
+                    <span th:text="${passwordError}">Password error</span>
                 </div>
                 <div id="passwordError" class="mt-4 p-3 bg-red-500/20 text-red-300 rounded-lg text-sm font-medium animate__animated animate__headShake hidden">
                     <i class="fas fa-exclamation-circle mr-2"></i>
@@ -275,6 +287,7 @@
                                         <i class="fas fa-exclamation-circle mr-1"></i>
                                         <span th:errors="*{email}">Email error</span>
                                     </div>
+
                                 </div>
 
                                 <!-- Password Field -->
@@ -294,6 +307,7 @@
                                         <i class="fas fa-exclamation-circle mr-1"></i>
                                         <span th:errors="*{password}">Password error</span>
                                     </div>
+
                                     <div class="password-strength" id="passwordStrength"></div>
                                 </div>
 

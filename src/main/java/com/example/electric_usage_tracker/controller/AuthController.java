@@ -36,8 +36,30 @@ public class AuthController {
 
     @PostMapping("/signup")
     public String processSignup(@ModelAttribute User user, Model model, RedirectAttributes redirectAttributes) {
+        // Validate email exists
         if (userService.emailExists(user.getEmail())) {
-            model.addAttribute("error", "User already exists, Log In.");
+            model.addAttribute("emailError", "Email already in use. Please use a different email or log in.");
+            return "signup";
+        }
+        
+        // Validate email format
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        if (!user.getEmail().matches(emailRegex)) {
+            model.addAttribute("emailError", "Please enter a valid email address.");
+            return "signup";
+        }
+        
+        // Validate password strength
+        String password = user.getPassword();
+        boolean hasUpperCase = !password.equals(password.toLowerCase());
+        boolean hasLowerCase = !password.equals(password.toUpperCase());
+        boolean hasNumbers = password.matches(".*\\d.*");
+        boolean hasSpecialChars = password.matches(".*[!@#$%^&*(),.?\":\\{\\}|<>].*");
+        int strengthFactors = (hasUpperCase ? 1 : 0) + (hasLowerCase ? 1 : 0) + 
+                             (hasNumbers ? 1 : 0) + (hasSpecialChars ? 1 : 0);
+        
+        if (password.length() < 8 || strengthFactors < 3) {
+            model.addAttribute("passwordError", "Please use a stronger password (at least 8 characters with a mix of uppercase, lowercase, numbers, and special characters).");
             return "signup";
         }
         

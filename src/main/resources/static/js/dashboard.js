@@ -207,17 +207,8 @@ function initializeCharts(data) {
   const totalEnergy = deviceValues.reduce((sum, value) => sum + value, 0) || 1; // Avoid division by zero
   const devicePercentages = deviceValues.map(value => (value / totalEnergy) * 100);
   
-  // If no data, provide demo data
-  if (trendDates.length === 0) {
-    // Demo data for the chart if no real data exists
-    formattedDates.push(...['Jan 01', 'Jan 02', 'Jan 03', 'Jan 04', 'Jan 05', 'Jan 06', 'Jan 07']);
-    trendValues.push(...[30, 40, 35, 50, 49, 60, 70]);
-  }
-  
-  if (deviceNames.length === 0) {
-    deviceNames.push(...['Television', 'Refrigerator', 'Air Conditioner', 'Washing Machine', 'Laptop']);
-    devicePercentages.push(...[25, 30, 15, 20, 10]);
-  }
+  // If no data is available, we'll display empty charts
+  // No static demo data - this ensures we only show real data from the server
   
   // Energy consumption chart options
   const energyChartOptions = {
@@ -415,7 +406,7 @@ function initializeCharts(data) {
     const analyticsOptions = {
       series: [{
         name: 'Energy Usage',
-        data: trendValues.slice(-7) // Use last 7 days of data
+        data: trendValues && trendValues.length > 0 ? trendValues.slice(-7) : [] // Use last 7 days of data if available
       }],
       chart: {
         height: 320,
@@ -490,87 +481,7 @@ function initializeCharts(data) {
       advancedAnalyticsChart.render();
     }
   }
-  
-  // Usage Comparison Chart
-  if (comparisonChartEl) {
-    const comparisonOptions = {
-      series: [{
-        name: 'Your Usage',
-        data: [4.2, 5.1, 3.8, 4.5, 6.3, 4.9, 3.2]
-      }, {
-        name: 'Similar Homes',
-        data: [5.1, 4.7, 4.3, 5.0, 5.8, 4.2, 3.8]
-      }],
-      chart: {
-        height: 240,
-        type: 'bar',
-        toolbar: {
-          show: false
-        },
-        background: 'transparent'
-      },
-      plotOptions: {
-        bar: {
-          borderRadius: 4,
-          columnWidth: '60%',
-        },
-      },
-      colors: ['#8b5cf6', '#6366f1'],
-      dataLabels: {
-        enabled: false
-      },
-      legend: {
-        position: 'top',
-        horizontalAlign: 'right',
-        labels: {
-          colors: '#94a3b8'
-        }
-      },
-      xaxis: {
-        categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        labels: {
-          style: {
-            colors: '#94a3b8'
-          }
-        }
-      },
-      yaxis: {
-        title: {
-          text: 'Energy (kWh)',
-          style: {
-            color: '#94a3b8'
-          }
-        },
-        labels: {
-          style: {
-            colors: '#94a3b8'
-          }
-        }
-      },
-      grid: {
-        borderColor: '#1e293b',
-        strokeDashArray: 5,
-        position: 'back'
-      },
-      tooltip: {
-        theme: 'dark',
-        y: {
-          formatter: function(val) {
-            return val + ' kWh';
-          }
-        }
-      }
-    };
-    if (comparisonChartEl) {
-      // Destroy existing chart if it exists
-      if (comparisonChart) {
-        comparisonChart.destroy();
-      }
-      // Create new chart
-      comparisonChart = new ApexCharts(comparisonChartEl, comparisonOptions);
-      comparisonChart.render();
-    }
-  }
+
 }
 
 // Initialize appliance dropdown in calculator
