@@ -705,58 +705,84 @@ function exportUsageData() {
 
 // Update charts immediately with new calculation data
 function updateChartsWithNewCalculation(usageData) {
-  // Get the current dashboard data or initialize if none exists
-  let dashData = window.dashboardData || {
-    totalEnergy: 0,
-    totalCost: 0,
-    recordCount: 0,
-    energyTrend: {},
-    deviceDistribution: {}
-  };
+  console.log('New calculation saved, refreshing all data from API...');
   
-  // Calculate kWh for this calculation
-  let hoursMultiplier = 1;
-  if (usageData.timeUnit === 'days') {
-    hoursMultiplier = 24;
-  } else if (usageData.timeUnit === 'weeks') {
-    hoursMultiplier = 24 * 7;
-  } else if (usageData.timeUnit === 'months') {
-    hoursMultiplier = 24 * 30; // Approximation
+  // Show loading indicator to let user know we're refreshing
+  const loader = document.getElementById('fullPageLoader');
+  if (loader) {
+    loader.classList.remove('hidden');
+    const progressBar = document.getElementById('loadingProgress');
+    if (progressBar) progressBar.style.width = '70%';
   }
   
-  const totalHours = usageData.hoursUsed * hoursMultiplier;
-  const kwhConsumed = (usageData.wattage * totalHours) / 1000;
-  const cost = kwhConsumed * usageData.energyCost;
-  
-  // Update today's data in energy trend
-  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-  
-  // If there's already a value for today, add to it, otherwise set it
-  dashData.energyTrend[today] = (dashData.energyTrend[today] || 0) + kwhConsumed;
-  
-  // Update device distribution
-  if (!dashData.deviceDistribution[usageData.applianceName]) {
-    dashData.deviceDistribution[usageData.applianceName] = 0;
-  }
-  dashData.deviceDistribution[usageData.applianceName] += kwhConsumed;
-  
-  // Update total energy and cost
-  dashData.totalEnergy = (dashData.totalEnergy || 0) + kwhConsumed;
-  dashData.totalCost = (dashData.totalCost || 0) + cost;
-  dashData.recordCount = (dashData.recordCount || 0) + 1;
-  
-  // Store updated data
-  window.dashboardData = dashData;
-  
-  // Force chart update with visible feedback
-  console.log('Updating charts with new calculation data:', kwhConsumed.toFixed(2) + ' kWh');
-  
-  // Re-initialize charts with updated data
-  updateDashboardMetrics(dashData);
-  initializeCharts(dashData);
-  
-  // Remove any chart initialization from the HTML that might conflict
-  overrideHtmlCharts();
+  // Force refresh from API instead of manually updating
+  fetch(API.DASHBOARD_DATA)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Error refreshing dashboard data: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(freshData => {
+      // Store the completely fresh data from API
+      window.dashboardData = freshData;
+      
+      console.log('Successfully refreshed dashboard data from API');
+      
+      // Update all dashboard components with fresh data
+      updateDashboardMetrics(freshData);
+      updateTrendIndicators(freshData);
+      
+      // Completely rebuild all charts with fresh data
+      if (energyChart) energyChart.destroy();
+      if (distributionChart) distributionChart.destroy();
+      if (advancedAnalyticsChart) advancedAnalyticsChart.destroy();
+      if (comparisonChart) comparisonChart.destroy();
+      
+      initializeCharts(freshData);
+      updateEfficiencyGauge(freshData.efficiencyScore || 0);
+      
+      // Hide loading indicator
+      if (loader) {
+        const progressBar = document.getElementById('loadingProgress');
+        if (progressBar) progressBar.style.width = '100%';
+        setTimeout(() => loader.classList.add('hidden'), 500);
+      }
+    })
+    .catch(error => {
+      console.error('API Error while refreshing data:', error);
+      // Hide loading indicator even on error
+      if (loader) {
+        loader.classList.add('hidden');
+      }
+      // Fallback to the old method if API refresh fails
+      let dashData = window.dashboardData || {
+        totalEnergy: 0, totalCost: 0, recordCount: 0,
+        energyTrend: {}, deviceDistribution: {}
+      };
+      
+      // Calculate kWh for this calculation
+      let hoursMultiplier = 1;
+      if (usageData.timeUnit === 'days') {
+        hoursMultiplier = 24;
+      } else if (usageData.timeUnit === 'weeks') {
+        hoursMultiplier = 24 * 7;
+      } else if (usageData.timeUnit === 'months') {
+        hoursMultiplier = 24 * 30; // Approximation
+      }
+      
+      const totalHours = usageData.hoursUsed * hoursMultiplier;
+      const kwhConsumed = (usageData.wattage * totalHours) / 1000;
+      const cost = kwhConsumed * usageData.energyCost;
+      
+      // Update today's data in energy trend
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+      dashData.energyTrend[today] = (dashData.energyTrend[today] || 0) + kwhConsumed;
+      
+      // Update the rest as before
+      updateDashboardMetrics(dashData);
+      initializeCharts(dashData);
+    });
 }
 
 // Override any chart initialization from HTML to prevent conflicts

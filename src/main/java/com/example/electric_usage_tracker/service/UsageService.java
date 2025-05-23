@@ -74,7 +74,7 @@ public class UsageService {
         // Fill in actual consumption data
         for (ApplianceUsage usage : usages) {
             LocalDate usageDate = usage.getRecordedAt().toLocalDate();
-            if (usageDate.isAfter(startDate.minusDays(1)) && !usageDate.isAfter(today)) {
+            if ((usageDate.isEqual(startDate) || usageDate.isAfter(startDate)) && (usageDate.isEqual(today) || usageDate.isBefore(today))) {
                 String dateKey = usageDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
                 if (trend.containsKey(dateKey)) {
                     trend.put(dateKey, trend.get(dateKey) + usage.getKWhConsumed());
@@ -159,9 +159,9 @@ public class UsageService {
         for (ApplianceUsage usage : usages) {
             LocalDate usageDate = usage.getRecordedAt().toLocalDate();
             
-            if (usageDate.isAfter(twoWeeksAgo) || usageDate.isEqual(twoWeeksAgo)) {
+            if ((usageDate.isAfter(twoWeeksAgo) || usageDate.isEqual(twoWeeksAgo)) && (usageDate.isEqual(today) || usageDate.isBefore(today))) {
                 currentPeriodUsage += usage.getKWhConsumed();
-            } else if (usageDate.isAfter(fourWeeksAgo) || usageDate.isEqual(fourWeeksAgo)) {
+            } else if ((usageDate.isAfter(fourWeeksAgo) || usageDate.isEqual(fourWeeksAgo)) && usageDate.isBefore(twoWeeksAgo)) {
                 previousPeriodUsage += usage.getKWhConsumed();
             }
         }

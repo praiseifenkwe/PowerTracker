@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,14 +43,47 @@ public class DashboardApiController {
         User user = userDetails.getUser();
         Map<String, Object> response = new HashMap<>();
 
-        // Add summary data
+        // Get today's date for fresh data check
+        LocalDateTime now = LocalDateTime.now();
+        String today = now.toLocalDate().toString();
+        
+        // Add summary data - always include all records regardless of date
         response.put("totalEnergy", usageService.getTotalEnergy(user));
         response.put("totalCost", usageService.getTotalCost(user));
         response.put("recordCount", usageService.getAllUsages(user).size());
 
-        // Add analytics data
-        response.put("deviceDistribution", usageService.getDeviceDistribution(user));
-        response.put("energyTrend", usageService.getEnergyTrend(user, 14));
+        // Get all usage records to ensure we include today's data
+        List<ApplianceUsage> allUsages = usageService.getAllUsages(user);
+        
+        // Force refresh device distribution with all usage data including today
+        Map<String, Double> distribution = new HashMap<>();
+        for (ApplianceUsage usage : allUsages) {
+            String applianceName = usage.getApplianceName();
+            double kWhConsumed = usage.getKWhConsumed();
+            distribution.put(applianceName, 
+                    distribution.getOrDefault(applianceName, 0.0) + kWhConsumed);
+        }
+        response.put("deviceDistribution", distribution);
+        
+        // Force recalculation of energy trend to include today
+        Map<String, Double> trend = new LinkedHashMap<>(); // Preserve insertion order
+        
+        // Setup last 14 days
+        for (int i = 13; i >= 0; i--) {
+            String dateStr = now.toLocalDate().minusDays(i).toString();
+            trend.put(dateStr, 0.0);
+        }
+        
+        // Fill with ALL usage data, including today
+        for (ApplianceUsage usage : allUsages) {
+            String dateStr = usage.getRecordedAt().toLocalDate().toString();
+            if (trend.containsKey(dateStr)) {
+                trend.put(dateStr, trend.get(dateStr) + usage.getKWhConsumed());
+            }
+        }
+        response.put("energyTrend", trend);
+        
+        // Other analytics data
         response.put("efficiencyScore", usageService.calculateEfficiencyScore(user));
         response.put("energyChange", usageService.getEnergyChangePercentage(user));
         response.put("costChange", usageService.getCostChangePercentage(user));
